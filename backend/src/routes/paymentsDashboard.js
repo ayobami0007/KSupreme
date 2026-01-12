@@ -61,37 +61,36 @@
 //     res.status(500).json({ error: err.message });
 //   }
 // });
-
-// module.exports = router;
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const PaymentModel = require("../models/Payment");
 
 // GET /api/payments/dashboard/:student_id
-router.get("/:student_id", async (req, res) => {
-  const { student_id } = req.params;
+router.get("/dashboard/:student_id", async (req, res) => {
+  const id = parseInt(req.params.student_id, 10);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: "student_id must be an integer" });
 
   try {
-    // 1️⃣ Get student info
+    // 1 Get student info
     const studentResult = await db.query(
       `SELECT s.id, s.name, s.class_id, c.name AS class_name
        FROM students s
        JOIN classes c ON s.class_id = c.id
        WHERE s.id = $1`,
-      [student_id]
+      [id]
     );
     const student = studentResult.rows[0];
     if (!student) return res.status(404).json({ error: "Student not found" });
 
-    // 2️⃣ Get active term
+    // 2 Get active term (use boolean true for safety)
     const activeTermResult = await db.query(
-      "SELECT * FROM terms WHERE is_active=1 LIMIT 1"
+      "SELECT * FROM terms WHERE is_active = true LIMIT 1"
     );
     const activeTerm = activeTermResult.rows[0];
     if (!activeTerm) return res.status(404).json({ error: "No active term found" });
 
-    // 3️⃣ Get class fee for this term
+    // 3 Get class fee for this term
     const feeResult = await db.query(
       "SELECT amount FROM school_fees WHERE class_id=$1 AND term_id=$2",
       [student.class_id, activeTerm.id]
@@ -99,21 +98,17 @@ router.get("/:student_id", async (req, res) => {
     const fee = feeResult.rows[0];
     const totalFee = fee ? Number(fee.amount) : 0;
 
-    // 4️⃣ Get total paid
-    const totalPaid = await PaymentModel.getTotalPaid(
-      student.id,
-      student.class_id,
-      activeTerm.id
-    );
-
+    // 4 Get total paid (ensure numeric)
+    const totalPaidRaw = await PaymentModel.getTotalPaid(student.id, student.class_id, activeTerm.id);
+    const totalPaid = Number(totalPaidRaw) || 0;
     const balance = totalFee - totalPaid;
 
-    // 5️⃣ Payment history
+    // 5 Payment history (fallback to id if created_at missing)
     const paymentsResult = await db.query(
-      "SELECT * FROM payments WHERE student_id=$1 AND class_id=$2 AND term_id=$3 ORDER BY created_at DESC",
+      "SELECT * FROM payments WHERE student_id=$1 AND class_id=$2 AND term_id=$3 ORDER BY created_at DESC NULLS LAST, id DESC",
       [student.id, student.class_id, activeTerm.id]
     );
-    const payments = paymentsResult.rows;
+    const payments = paymentsResult.rows || [];
 
     res.json({
       student,
@@ -122,13 +117,12 @@ router.get("/:student_id", async (req, res) => {
       total_paid: totalPaid,
       balance,
       status: balance === 0 ? "FULL" : "PART",
+      fee_exists: !!fee,
       payments
     });
 
   } catch (err) {
-    console.error("Dashboard error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("Dashboard error:", { student_id: id, err });
+    res.status(500).json({ error: "Failed to build student dashboard" });
   }
 });
-
-module.exports = router;

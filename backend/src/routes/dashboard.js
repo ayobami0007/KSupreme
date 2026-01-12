@@ -51,34 +51,40 @@ const db = require("../config/db");
 // Dashboard summary endpoint
 router.get("/summary", async (req, res) => {
   try {
-    // 1️⃣ Total students (active only)
+    // 1 Total students (active only)
     const studentsResult = await db.query(
-      "SELECT COUNT(*) AS total_students FROM students WHERE status='Active'"
+      "SELECT COUNT(*) AS total_students FROM students WHERE status = 'Active'"
     );
-    const totalStudents = parseInt(studentsResult.rows[0].total_students, 10);
+    const totalStudents = parseInt(studentsResult.rows[0].total_students || 0, 10);
 
-    // 2️⃣ Fully paid students (balance = 0)
-    const fullyPaidResult = await db.query(`
-      SELECT COUNT(DISTINCT p.student_id) AS fully_paid
-      FROM payments p
-      JOIN school_fees f 
-        ON p.class_id = f.class_id 
-        AND p.term_id = f.term_id
-      GROUP BY p.student_id, p.class_id, p.term_id
-      HAVING SUM(p.amount_paid) >= MAX(f.amount)
-    `);
-    const fullyPaidCount = fullyPaidResult.rows.length > 0 
-      ? parseInt(fullyPaidResult.rows[0].fully_paid, 10)
-      : 0;
+    // 2 Fully paid students (distinct students who have at least one class+term fully paid)
+    const fullyPaidSql = `
+      SELECT COUNT(DISTINCT student_id) AS fully_paid
+      FROM (
+        SELECT p.student_id,
+               p.class_id,
+               p.term_id,
+               SUM(p.amount_paid) AS paid,
+               MAX(f.amount) AS fee
+        FROM payments p
+        JOIN school_fees f
+          ON p.class_id = f.class_id
+         AND p.term_id  = f.term_id
+        GROUP BY p.student_id, p.class_id, p.term_id
+        HAVING SUM(p.amount_paid) >= MAX(f.amount)
+      ) t;
+    `;
+    const fullyPaidResult = await db.query(fullyPaidSql);
+    const fullyPaidCount = parseInt(fullyPaidResult.rows[0].fully_paid || 0, 10);
 
-    // 3️⃣ Total amount collected
+    // 3 Total amount collected
     const amountResult = await db.query(
       "SELECT COALESCE(SUM(amount_paid),0) AS total_amount FROM payments"
     );
-    const totalAmount = parseFloat(amountResult.rows[0].total_amount);
+    const totalAmount = parseFloat(amountResult.rows[0].total_amount || 0);
 
-    // 4️⃣ Owing students = total - fully paid
-    const owingCount = totalStudents - fullyPaidCount;
+    // 4 Owing students = total - fully paid
+    const owingCount = Math.max(0, totalStudents - fullyPaidCount);
 
     res.json({
       total_students: totalStudents,
@@ -93,3 +99,4 @@ router.get("/summary", async (req, res) => {
 });
 
 module.exports = router;
+

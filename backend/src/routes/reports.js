@@ -83,45 +83,46 @@ router.get("/payments", async (req, res) => {
   try {
     const { status, section, level, track } = req.query;
 
-    // 1️⃣ Active term
+    // 1 Active term (use boolean)
     const termResult = await db.query(
-      "SELECT id FROM terms WHERE is_active=1 LIMIT 1"
+      "SELECT id FROM terms WHERE is_active = true LIMIT 1"
     );
     const term = termResult.rows[0];
     if (!term) return res.status(404).json({ error: "No active term" });
 
-    // 2️⃣ Filters
-    let filters = [];
-    let values = [term.id, term.id]; // for sf.term_id and p.term_id
-    let paramIndex = 3; // start numbering for optional filters
+    // 2 Build WHERE filters (place BEFORE GROUP BY)
+    let whereClauses = [`sf.term_id = $1`]; // school_fees term
+    let values = [term.id]; // $1
+    let paramIndex = 2; // next placeholder index
 
     if (section) {
-      filters.push(`c.section = $${paramIndex}`);
+      whereClauses.push(`c.section = $${paramIndex}`);
       values.push(section);
       paramIndex++;
     }
     if (level) {
-      filters.push(`c.level = $${paramIndex}`);
+      whereClauses.push(`c.level = $${paramIndex}`);
       values.push(level);
       paramIndex++;
     }
     if (track) {
-      filters.push(`c.track = $${paramIndex}`);
+      whereClauses.push(`c.track = $${paramIndex}`);
       values.push(track);
       paramIndex++;
     }
 
-    const filterSQL = filters.length ? "AND " + filters.join(" AND ") : "";
+    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
 
-    // 3️⃣ Status HAVING condition
+    // 3 Status HAVING condition (normalize status)
+    const s = (status || "").toUpperCase();
     let havingSQL = "";
-    if (status === "FULL") {
+    if (s === "FULL") {
       havingSQL = `HAVING (sf.amount - COALESCE(SUM(p.amount_paid),0)) <= 0`;
-    } else if (status === "OWING") {
+    } else if (s === "OWING") {
       havingSQL = `HAVING (sf.amount - COALESCE(SUM(p.amount_paid),0)) > 0`;
     }
 
-    // 4️⃣ Main query
+    // 4 Main query: WHERE -> GROUP BY -> HAVING -> ORDER BY
     const query = `
       SELECT 
         s.id AS student_id,
@@ -135,14 +136,15 @@ router.get("/payments", async (req, res) => {
         (sf.amount - COALESCE(SUM(p.amount_paid), 0)) AS balance
       FROM students s
       JOIN classes c ON s.class_id = c.id
-      JOIN school_fees sf ON sf.class_id = c.id AND sf.term_id = $1
+      JOIN school_fees sf ON sf.class_id = c.id
       LEFT JOIN payments p 
         ON p.student_id = s.id 
         AND p.class_id = c.id 
-        AND p.term_id = $2
+        AND p.term_id = $1
+      ${whereSQL}
       GROUP BY s.id, s.name, c.name, c.section, c.level, c.track, sf.amount
       ${havingSQL}
-      ${filterSQL}
+      ORDER BY c.name, s.name
     `;
 
     const result = await db.query(query, values);
