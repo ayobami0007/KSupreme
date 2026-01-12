@@ -140,33 +140,84 @@
 // module.exports = ClassModel;
 
 
+// static validateRules({ name, section, level, track }) {
+  //   if (!name || !section || !level) {
+  //     throw new Error("name, section and level are required.");
+  //   }
 
+  //   if (section === "Secondary" && level.startsWith("SS") && !track) {
+  //     throw new Error("Track is required for Senior Secondary classes.");
+  //   }
+
+  //   if (section === "Secondary" && level.startsWith("JSS") && track) {
+  //     throw new Error("Junior Secondary classes should not have a track.");
+  //   }
+
+  //   // Optional: validate allowed track values if provided
+  //   if (track && !["Science", "Arts", "Commercial"].includes(track)) {
+  //     throw new Error("track must be one of: Science, Arts, Commercial.");
+  //   }
+
+  //   // Optional: validate allowed levels
+  //   if (!["JSS1","JSS2","JSS3","SS1","SS2","SS3"].includes(level)) {
+  //     throw new Error("level must be one of: JSS1,JSS2,JSS3,SS1,SS2,SS3.");
+  //   }
+  // }
 const db = require("../config/db");
 
 class ClassModel {
-  static validateRules({ name, section, level, track }) {
-    if (!name || !section || !level) {
-      throw new Error("name, section and level are required.");
+  
+static validateRules({ name, section, level, track }) {
+  if (!name || !section) {
+    throw new Error("name and section are required.");
+  }
+
+  // section must be valid
+  if (!["Primary", "Secondary"].includes(section)) {
+    throw new Error("section must be 'Primary' or 'Secondary'.");
+  }
+
+  // Secondary rules
+  if (section === "Secondary") {
+    if (!level) throw new Error("level is required for Secondary section.");
+    if (!["Junior", "Senior"].includes(level)) {
+      throw new Error("For Secondary, level must be 'Junior' or 'Senior'.");
     }
 
-    if (section === "Secondary" && level.startsWith("SS") && !track) {
-      throw new Error("Track is required for Senior Secondary classes.");
+    const allowedNames = ["JSS1","JSS2","JSS3","SS1","SS2","SS3"];
+    if (!allowedNames.includes(name)) {
+      throw new Error("For Secondary section, name must be one of: JSS1,JSS2,JSS3,SS1,SS2,SS3.");
     }
 
-    if (section === "Secondary" && level.startsWith("JSS") && track) {
-      throw new Error("Junior Secondary classes should not have a track.");
+    if (level === "Senior") {
+      if (!track) throw new Error("Track is required for Senior classes.");
+      if (!["Science","Arts","Commercial"].includes(track)) {
+        throw new Error("track must be one of: Science, Arts, Commercial.");
+      }
+      if (!name.startsWith("SS")) {
+        throw new Error("Senior class name must start with 'SS' (e.g., SS1).");
+      }
     }
 
-    // Optional: validate allowed track values if provided
-    if (track && !["Science", "Arts", "Commercial"].includes(track)) {
-      throw new Error("track must be one of: Science, Arts, Commercial.");
-    }
-
-    // Optional: validate allowed levels
-    if (!["JSS1","JSS2","JSS3","SS1","SS2","SS3"].includes(level)) {
-      throw new Error("level must be one of: JSS1,JSS2,JSS3,SS1,SS2,SS3.");
+    if (level === "Junior") {
+      if (track) throw new Error("Junior classes should not have a track.");
+      if (!name.startsWith("JSS")) {
+        throw new Error("Junior class name must start with 'JSS' (e.g., JSS1).");
+      }
     }
   }
+
+  // Primary rules
+  if (section === "Primary") {
+    // Primary must not use Junior/Senior level
+    if (level !== undefined && level !== null) {
+      throw new Error("Primary classes must not have a level; set level to null or omit it.");
+    }
+    if (track) {
+      throw new Error("Primary classes should not have a track.");
+    }
+  }
+}
 
   static mapDbError(err, context = "class") {
     // Unique violation

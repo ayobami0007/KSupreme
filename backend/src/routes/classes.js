@@ -123,11 +123,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Create class (admin)
+
 router.post("/", async (req, res) => {
   const { name, section, level } = req.body;
-  if (!name || !section || !level) {
-    return res.status(400).json({ error: "name, section and level are required" });
+
+  if (!name || !section) {
+    return res.status(400).json({ error: "name and section are required" });
+  }
+
+  // level required only for Secondary
+  if (section === "Secondary" && !level) {
+    return res.status(400).json({ error: "level is required for Secondary section" });
   }
 
   try {
@@ -142,6 +148,17 @@ router.post("/", async (req, res) => {
 
 // Update class
 router.put("/:id", async (req, res) => {
+  const { name, section, level } = req.body;
+
+  if (!name || !section) {
+    return res.status(400).json({ error: "name and section are required" });
+  }
+
+  // level required only for Secondary
+  if (section === "Secondary" && !level) {
+    return res.status(400).json({ error: "level is required for Secondary section" });
+  }
+
   try {
     const updatedClass = await ClassModel.update(req.params.id, req.body);
     res.json({ message: "Class updated", updatedClass });
