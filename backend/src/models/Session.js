@@ -82,9 +82,9 @@ class Session {
   static async setActive(id) {
     try {
       // Reset all sessions to inactive
-      await db.query("UPDATE sessions SET is_active = 0");
+      await db.query("UPDATE sessions SET is_active = false");
       // Set the selected session as active
-      await db.query("UPDATE sessions SET is_active = 1 WHERE id = $1", [id]);
+      await db.query("UPDATE sessions SET is_active = true WHERE id = $1", [id]);
       // Return the updated session
       const res = await db.query("SELECT * FROM sessions WHERE id = $1", [id]);
       return res.rows[0] || null;
@@ -97,7 +97,7 @@ class Session {
   static async getActive() {
     try {
       const res = await db.query(
-        "SELECT * FROM sessions WHERE is_active = 1 LIMIT 1"
+        "SELECT * FROM sessions WHERE is_active = true LIMIT 1"
       );
       return res.rows[0] || null;
     } catch (err) {
