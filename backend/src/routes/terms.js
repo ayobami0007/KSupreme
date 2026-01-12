@@ -101,8 +101,7 @@ router.post("/", async (req, res) => {
     const term = await Term.create(name, session_id); // model returns inserted row
     res.status(201).json({ message: "Term created", term });
   } catch (err) {
-    console.error("Error creating term:", err);
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 });
 

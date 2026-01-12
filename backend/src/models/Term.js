@@ -119,7 +119,7 @@ const db = require("../config/db");
 
 class Term {
   // Create a new term
-  static async create(name, session_id, is_active = 0) {
+  static async create(name, session_id, is_active = false) {
     try {
       const res = await db.query(
         "INSERT INTO terms (name, session_id, is_active) VALUES ($1, $2, $3) RETURNING *",
@@ -127,8 +127,11 @@ class Term {
       );
       return res.rows[0];
     } catch (err) {
+      if (err.code === "23505") { 
+        throw new Error(`This session already has a ${name}.`);
+      }
       console.error("Error creating term:", err);
-      throw new Error(`Failed to create term: ${err.message}`);
+       throw new Error(`Failed to create term: ${err.message}`);
     }
   }
 
@@ -150,11 +153,11 @@ class Term {
   static async setActive(id) {
     try {
       // Deactivate all terms
-      await db.query("UPDATE terms SET is_active = 0");
+      await db.query("UPDATE terms SET is_active = false");
 
       // Activate the chosen term
       const res = await db.query(
-        "UPDATE terms SET is_active = 1 WHERE id = $1 RETURNING *",
+        "UPDATE terms SET is_active = true WHERE id = $1 RETURNING *",
         [id]
       );
 
@@ -182,7 +185,7 @@ class Term {
   static async getActiveBySession(session_id) {
     try {
       const res = await db.query(
-        "SELECT * FROM terms WHERE session_id = $1 AND is_active = 1 LIMIT 1",
+        "SELECT * FROM terms WHERE session_id = $1 AND is_active = true LIMIT 1",
         [session_id]
       );
       return res.rows[0] || null;
