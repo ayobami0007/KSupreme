@@ -48,20 +48,20 @@
 
 // module.exports = router;
 
-const express = require("express");
-const router = express.Router();
-const ClassModel = require("../models/Class");
+// const express = require("express");
+// const router = express.Router();
+// const ClassModel = require("../models/Class");
 
-// Get all classes (with optional filters)
-router.get("/", async (req, res) => {
-  try {
-    const classes = await ClassModel.getAll(req.query);
-    res.json(classes);
-  } catch (err) {
-    console.error("Error fetching classes:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
+// // Get all classes (with optional filters)
+// router.get("/", async (req, res) => {
+//   try {
+//     const classes = await ClassModel.getAll(req.query);
+//     res.json(classes);
+//   } catch (err) {
+//     console.error("Error fetching classes:", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 // Create class (admin)
 
@@ -99,7 +99,8 @@ router.get("/", async (req, res) => {
 
 
 const express = require("express");
-const router = express.Router();
+const router = express.Router()
+
 const ClassModel = require("../models/Class");
 
 // Helper to map errors to status codes
