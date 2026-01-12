@@ -211,6 +211,8 @@ class Term {
         "SELECT * FROM terms WHERE session_id = $1 AND is_active = true LIMIT 1",
         [session_id]
       );
+      if (res.rows.length === 0) {
+         throw new Error(`No active term found for session ${session_id}.`); }
       return res.rows[0] || null;
     } catch (err) {
       console.error("Error fetching active term:", err);
