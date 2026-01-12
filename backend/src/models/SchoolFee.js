@@ -108,12 +108,8 @@ class SchoolFee {
     if (isNaN(amount) || Number(amount) <= 0) {
       throw new Error("amount must be a positive number.");
     }
-
-    const classOk = await this.classExists(class_id);
-    if (!classOk) throw new Error(`class_id ${class_id} does not exist.`);
-
-    const termOk = await this.termExists(term_id);
-    if (!termOk) throw new Error(`term_id ${term_id} does not exist.`);
+    if (!(await this.classExists(class_id))) throw new Error(`class_id ${class_id} does not exist.`);
+    if (!(await this.termExists(term_id))) throw new Error(`term_id ${term_id} does not exist.`);
 
     try {
       const res = await db.query(
@@ -128,33 +124,60 @@ class SchoolFee {
     }
   }
 
+  static async getById(id) {
+    const res = await db.query("SELECT * FROM school_fees WHERE id = $1", [id]);
+    return res.rows[0] || null;
+  }
+
   static async getByClassAndTerm(class_id, term_id) {
+    const res = await db.query(
+      `SELECT f.*, c.name AS class_name, t.name AS term_name
+       FROM school_fees f
+       JOIN classes c ON f.class_id = c.id
+       JOIN terms t ON f.term_id = t.id
+       WHERE f.class_id = $1 AND f.term_id = $2`,
+      [class_id, term_id]
+    );
+    return res.rows[0] || null;
+  }
+
+  static async update(id, { class_id, term_id, amount }) {
+    if (amount !== undefined && (isNaN(amount) || Number(amount) <= 0)) {
+      throw new Error("amount must be a positive number.");
+    }
+    if (class_id && !(await this.classExists(class_id))) throw new Error(`class_id ${class_id} does not exist.`);
+    if (term_id && !(await this.termExists(term_id))) throw new Error(`term_id ${term_id} does not exist.`);
+
     try {
       const res = await db.query(
-        `SELECT * FROM school_fees WHERE class_id = $1 AND term_id = $2`,
-        [class_id, term_id]
+        `UPDATE school_fees
+         SET class_id = COALESCE($1, class_id),
+             term_id  = COALESCE($2, term_id),
+             amount   = COALESCE($3, amount),
+             updated_at = now()
+         WHERE id = $4
+         RETURNING *`,
+        [class_id, term_id, amount, id]
       );
-      return res.rows[0] || null;
+
+      if (!res.rows || res.rows.length === 0) {
+        throw new Error(`No school fee found with id ${id}.`);
+      }
+      return res.rows[0];
     } catch (err) {
-      console.error("getByClassAndTerm error:", err.message);
-      throw err;
+      throw this.mapDbError(err);
     }
   }
 
   static async getAll() {
-    try {
-      const res = await db.query(
-        `SELECT f.id, f.amount, c.id AS class_id, c.name AS class_name, t.id AS term_id, t.name AS term_name
-         FROM school_fees f
-         JOIN classes c ON f.class_id = c.id
-         JOIN terms t ON f.term_id = t.id
-         ORDER BY c.name, t.name`
-      );
-      return res.rows;
-    } catch (err) {
-      console.error("getAll school fees error:", err.message);
-      throw err;
-    }
+    const res = await db.query(
+      `SELECT f.id, f.amount, c.id AS class_id, c.name AS class_name, t.id AS term_id, t.name AS term_name
+       FROM school_fees f
+       JOIN classes c ON f.class_id = c.id
+       JOIN terms t ON f.term_id = t.id
+       ORDER BY c.name, t.name`
+    );
+    return res.rows;
   }
 }
 
