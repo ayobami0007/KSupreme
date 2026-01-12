@@ -106,7 +106,6 @@
 
 // module.exports = router;
 
-
 const express = require("express");
 const router = express.Router();
 const SchoolFee = require("../models/SchoolFee");
@@ -142,24 +141,26 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get by id
-router.get("/:id", async (req, res) => {
-  try {
-    const fee = await SchoolFee.getById(req.params.id);
-    if (!fee) return res.status(404).json({ error: "No school fee found with that id" });
-    res.json(fee);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get by class & term
+// Get by class & term (MUST be before the :id route)
 router.get("/by-class-term", async (req, res) => {
   try {
     const { class_id, term_id } = req.query;
     if (!class_id || !term_id) return res.status(400).json({ error: "class_id and term_id are required" });
     const fee = await SchoolFee.getByClassAndTerm(class_id, term_id);
     if (!fee) return res.status(404).json({ error: "No fee found for this class and term" });
+    res.json(fee);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get by id (numeric check to avoid accidental matches)
+router.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!/^\d+$/.test(id)) return res.status(400).json({ error: "id must be an integer" });
+    const fee = await SchoolFee.getById(id);
+    if (!fee) return res.status(404).json({ error: "No school fee found with that id" });
     res.json(fee);
   } catch (err) {
     res.status(500).json({ error: err.message });
