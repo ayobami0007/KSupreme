@@ -12,7 +12,7 @@ const schoolFeeRoutes = require("./routes/schoolFees")
 const paymentRoutes = require("./routes/payments")
 const paymentsDashboardRoutes = require("./routes/paymentsDashboard");
 const bursarRoutes = require("./routes/bursar");
-const reportRoutes = require("./routes/reports") 
+const reportRoutes = require("./routes/reports")
 const dashboardRoutes = require("./routes/dashboard");
 
 app.use(cors());
@@ -27,24 +27,31 @@ app.use("/api/students", studentRoutes)
 app.use("/api/school-fees", schoolFeeRoutes)
 app.use("/api/payments", paymentRoutes)
 app.use("/api/payments/dashboard", paymentsDashboardRoutes);
-app.use("/api/reports", reportRoutes )
+app.use("/api/reports", reportRoutes)
 app.use("/api/dashboard", dashboardRoutes)
-app.get("/", (req,res) =>{
+app.get("/", (req, res) => {
     res.send("Payment Portal API running")
 }
 );
 
 
-app.get("/db-test", async (req, res) =>{
-    try{
-   await db.query("SELECT 1");
-   res.json({message:"databasee connecter"})
+app.get("/db-test", async (req, res) => {
+    try {
+        const result = await db.query("SELECT NOW ()")
+        res.json({
+            message: "Database Connected",
+            time: result.rows[0]
+        })
 
-    } catch(error){
-        res.status(500).json({ error:error.message  })
+    } catch (error) {
+        console.error("DB TEST ERROR:", error);
+  res.status(500).json({
+    message: "Database connection failed",
+    error: error.message,
+  });
     }
-   
-} )
+
+})
 
 
 module.exports = app;
