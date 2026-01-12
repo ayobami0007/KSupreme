@@ -1,60 +1,75 @@
+
 // const db = require("../config/db");
 
 // class Student {
 //   static async create(data) {
 //     const { name, class_id, status } = data;
-//     await db.query(
-//       "INSERT INTO students (name, class_id, status) VALUES (?, ?, ?)",
-//       [name, class_id, status || "Active"]
-//     );
+//     try {
+//       const res = await db.query(
+//         "INSERT INTO students (name, class_id, status) VALUES ($1, $2, $3) RETURNING *",
+//         [name, class_id, status || "Active"]
+//       );
+//       return res.rows[0];
+//     } catch (err) {
+//       console.error("Error creating student:", err);
+//       throw new Error(`Failed to create student: ${err.message}`);
+//     }
 //   }
-
 
 //   static async getAll(filters = {}) {
-//   let sql = `
-//     SELECT 
-//       students.*,
-//       classes.name AS class_name,
-//       classes.section,
-//       classes.level,
-//       classes.track
-//     FROM students
-//     JOIN classes ON students.class_id = classes.id
-//     WHERE students.status = 'Active'
-//   `;
+//     let sql = `
+//       SELECT 
+//         students.*,
+//         classes.name AS class_name,
+//         classes.section,
+//         classes.level,
+//         classes.track
+//       FROM students
+//       JOIN classes ON students.class_id = classes.id
+//       WHERE students.status = 'Active'
+//     `;
 
-//   const params = [];
+//     const params = [];
+//     let counter = 1; // for $1, $2, $3 placeholders
 
-//   if (filters.class_id) {
-//     sql += " AND students.class_id = ?";
-//     params.push(filters.class_id);
+//     if (filters.class_id) {
+//       sql += ` AND students.class_id = $${counter++}`;
+//       params.push(filters.class_id);
+//     }
+//     if (filters.section) {
+//       sql += ` AND classes.section = $${counter++}`;
+//       params.push(filters.section);
+//     }
+//     if (filters.level) {
+//       sql += ` AND classes.level = $${counter++}`;
+//       params.push(filters.level);
+//     }
+//     if (filters.track) {
+//       sql += ` AND classes.track = $${counter++}`;
+//       params.push(filters.track);
+//     }
+
+//     try {
+//       const res = await db.query(sql, params);
+//       return res.rows;
+//     } catch (err) {
+//       console.error("Error fetching students:", err);
+//       throw new Error(`Failed to fetch students: ${err.message}`);
+//     }
 //   }
-
-//   if (filters.section) {
-//     sql += " AND classes.section = ?";
-//     params.push(filters.section);
-//   }
-
-//   if (filters.level) {
-//     sql += " AND classes.level = ?";
-//     params.push(filters.level);
-//   }
-
-//   if (filters.track) {
-//     sql += " AND classes.track = ?";
-//     params.push(filters.track);
-//   }
-
-//   const [rows] = await db.query(sql, params);
-//   return rows;
-// }
 
 //   static async update(id, data) {
 //     const { name, class_id, status } = data;
-//     await db.query(
-//       "UPDATE students SET name=?, class_id=?, status=? WHERE id=?",
-//       [name, class_id, status, id]
-//     );
+//     try {
+//       const res = await db.query(
+//         "UPDATE students SET name=$1, class_id=$2, status=$3 WHERE id=$4 RETURNING *",
+//         [name, class_id, status, id]
+//       );
+//       return res.rows[0];
+//     } catch (err) {
+//       console.error("Error updating student:", err);
+//       throw new Error(`Failed to update student: ${err.message}`);
+//     }
 //   }
 // }
 
@@ -62,17 +77,44 @@
 const db = require("../config/db");
 
 class Student {
+  static async classExists(class_id) {
+    if (!class_id) return false;
+    const res = await db.query("SELECT 1 FROM classes WHERE id = $1", [class_id]);
+    return res.rows.length > 0;
+  }
+
+  static mapDbError(err) {
+    if (!err) return err;
+    if (err.code === "23503") {
+      return new Error("Referenced class does not exist.");
+    }
+    if (err.code === "23505") {
+      return new Error("A student with the same unique field already exists.");
+    }
+    return err;
+  }
+
   static async create(data) {
     const { name, class_id, status } = data;
+
+    if (!name) throw new Error("name is required.");
+    if (!class_id) throw new Error("class_id is required.");
+
+    // Optional: verify class exists to give a clearer error before FK fails
+    const exists = await this.classExists(class_id);
+    if (!exists) throw new Error(`class_id ${class_id} does not exist.`);
+
     try {
       const res = await db.query(
-        "INSERT INTO students (name, class_id, status) VALUES ($1, $2, $3) RETURNING *",
+        `INSERT INTO students (name, class_id, status)
+         VALUES ($1, $2, $3)
+         RETURNING *`,
         [name, class_id, status || "Active"]
       );
       return res.rows[0];
     } catch (err) {
       console.error("Error creating student:", err);
-      throw new Error(`Failed to create student: ${err.message}`);
+      throw this.mapDbError(err);
     }
   }
 
@@ -86,28 +128,39 @@ class Student {
         classes.track
       FROM students
       JOIN classes ON students.class_id = classes.id
-      WHERE students.status = 'Active'
+      WHERE 1=1
     `;
 
     const params = [];
-    let counter = 1; // for $1, $2, $3 placeholders
+    let i = 1;
+
+    // status filter (default to Active if not provided)
+    const status = filters.status || "Active";
+    sql += ` AND students.status = $${i++}`;
+    params.push(status);
 
     if (filters.class_id) {
-      sql += ` AND students.class_id = $${counter++}`;
+      sql += ` AND students.class_id = $${i++}`;
       params.push(filters.class_id);
     }
     if (filters.section) {
-      sql += ` AND classes.section = $${counter++}`;
+      sql += ` AND classes.section = $${i++}`;
       params.push(filters.section);
     }
     if (filters.level) {
-      sql += ` AND classes.level = $${counter++}`;
+      sql += ` AND classes.level = $${i++}`;
       params.push(filters.level);
     }
     if (filters.track) {
-      sql += ` AND classes.track = $${counter++}`;
+      sql += ` AND classes.track = $${i++}`;
       params.push(filters.track);
     }
+    if (filters.search) {
+      sql += ` AND students.name ILIKE $${i++}`;
+      params.push(`%${filters.search}%`);
+    }
+
+    sql += ` ORDER BY students.id DESC`;
 
     try {
       const res = await db.query(sql, params);
@@ -120,15 +173,35 @@ class Student {
 
   static async update(id, data) {
     const { name, class_id, status } = data;
+
+    if (!name && !class_id && status === undefined) {
+      throw new Error("At least one of name, class_id or status must be provided.");
+    }
+
+    if (class_id) {
+      const exists = await this.classExists(class_id);
+      if (!exists) throw new Error(`class_id ${class_id} does not exist.`);
+    }
+
     try {
       const res = await db.query(
-        "UPDATE students SET name=$1, class_id=$2, status=$3 WHERE id=$4 RETURNING *",
+        `UPDATE students
+         SET name = COALESCE($1, name),
+             class_id = COALESCE($2, class_id),
+             status = COALESCE($3, status)
+         WHERE id = $4
+         RETURNING *`,
         [name, class_id, status, id]
       );
+
+      if (!res.rows || res.rows.length === 0) {
+        throw new Error(`No student found with id ${id}.`);
+      }
+
       return res.rows[0];
     } catch (err) {
       console.error("Error updating student:", err);
-      throw new Error(`Failed to update student: ${err.message}`);
+      throw this.mapDbError(err);
     }
   }
 }
