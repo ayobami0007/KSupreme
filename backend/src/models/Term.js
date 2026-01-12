@@ -150,23 +150,46 @@ class Term {
   }
 
   // Set one term as active globally
+  // static async setActive(id) {
+  //   try {
+  //     // Deactivate all terms
+  //     await db.query("UPDATE terms SET is_active = false");
+
+  //     // Activate the chosen term
+  //     const res = await db.query(
+  //       "UPDATE terms SET is_active = true WHERE id = $1 RETURNING *",
+  //       [id]
+  //     );
+
+  //     return res.rows[0] || null;
+  //   } catch (err) {
+  //     console.error("Failed to set active term:", err);
+  //     throw new Error(`Failed to set active term: ${err.message}`);
+  //   }
+  // }
+
   static async setActive(id) {
-    try {
-      // Deactivate all terms
-      await db.query("UPDATE terms SET is_active = false");
+  try {
+    // Deactivate all terms
+    await db.query("UPDATE terms SET is_active = false");
 
-      // Activate the chosen term
-      const res = await db.query(
-        "UPDATE terms SET is_active = true WHERE id = $1 RETURNING *",
-        [id]
-      );
+    // Try to activate the chosen term
+    const res = await db.query(
+      "UPDATE terms SET is_active = true WHERE id = $1 RETURNING *",
+      [id]
+    );
 
-      return res.rows[0] || null;
-    } catch (err) {
-      console.error("Failed to set active term:", err);
-      throw new Error(`Failed to set active term: ${err.message}`);
+    if (res.rows.length === 0) {
+      throw new Error(`No term found with id ${id}.`);
     }
+
+    return res.rows[0];
+  } catch (err) {
+    console.error("Failed to set active term:", err);
+    throw new Error(err.message);
   }
+}
+
 
   // Get all terms (across all sessions)
   static async getAll() {
