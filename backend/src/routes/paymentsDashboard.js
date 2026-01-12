@@ -126,3 +126,5 @@ router.get("/dashboard/:student_id", async (req, res) => {
     res.status(500).json({ error: "Failed to build student dashboard" });
   }
 });
+
+module.exports = router;
