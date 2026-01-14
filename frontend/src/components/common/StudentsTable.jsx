@@ -46,7 +46,7 @@ const StudentsTable = ({ students }) => {
                 <td className="p-2">
                   <Link to={`/students/${s.id}/payment`}>
                   <button className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer">
-                    {s.status === "FULL" ? "View" : "Pay"}
+                    {s.status === "Paid" ? "View" : "Pay"}
                   </button>
                   </Link>
                 </td>

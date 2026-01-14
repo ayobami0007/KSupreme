@@ -205,7 +205,7 @@ class Student {
     }
   }
 
-  static async getWithStatus({ class_id, term_id, search, offset = 0 }) {
+static async getWithStatus({ class_id, termName, sessionName, search, offset = 0 }) {
   let sql = `
     SELECT 
       s.id,
@@ -214,19 +214,26 @@ class Student {
       COALESCE(SUM(p.amount_paid), 0) AS total_paid,
       COALESCE(sf.amount, 0) AS total_fee,
       CASE 
-      WHEN sf.amount IS NULL THEN 'No Fee Set'
-        WHEN COALESCE(SUM(p.amount_paid), 0) >= COALESCE(sf.amount, 0) THEN 'Paid'
+        WHEN sf.amount IS NULL THEN 'No Fee Set'
+        WHEN COALESCE(SUM(p.amount_paid), 0) >= sf.amount THEN 'Paid'
         ELSE 'Owing'
       END AS status
     FROM students s
     JOIN classes c ON s.class_id = c.id
-    LEFT JOIN payments p ON p.student_id = s.id AND p.term_id = $1
-    LEFT JOIN school_fees sf ON sf.class_id = c.id AND sf.term_id = $1
+    LEFT JOIN payments p ON p.student_id = s.id
+    LEFT JOIN school_fees sf 
+      ON sf.class_id = c.id 
+     AND sf.term_id = (
+        SELECT t.id
+        FROM terms t
+        JOIN sessions ss ON t.session_id = ss.id
+        WHERE t.name = $1 AND ss.name = $2
+      )
     WHERE 1=1
   `;
 
-  const params = [term_id];
-  let i = 2;
+  const params = [termName, sessionName];
+  let i = 3;
 
   if (class_id) {
     sql += ` AND s.class_id = $${i++}`;
@@ -234,14 +241,16 @@ class Student {
   }
 
   if (search) {
-    sql += ` AND s.name ILIKE $${i} `;
+    sql += ` AND s.name ILIKE $${i}`;
     params.push(`%${search}%`);
     i++;
   }
 
-  sql += ` GROUP BY s.id, s.name, c.name, sf.amount ORDER BY s.name ASC LIMIT $${i} OFFSET $${i+1}`;
-  params.push(40); // limit to 40 students
-    params.push(offset || 0); 
+  sql += ` GROUP BY s.id, s.name, c.name, sf.amount 
+           ORDER BY s.name ASC 
+           LIMIT $${i} OFFSET $${i+1}`;
+  params.push(40); // limit
+  params.push(offset || 0);
 
   try {
     const res = await db.query(sql, params);
@@ -251,6 +260,7 @@ class Student {
     throw new Error(`Failed to fetch students with status: ${err.message}`);
   }
 }
+
 
 }
 
