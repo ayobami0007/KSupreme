@@ -1,3 +1,36 @@
+// const PaymentFilters = ({
+//   selectedClass,
+//   setSelectedClass,
+//   searchQuery,
+//   setSearchQuery,
+//   classes = []
+// }) => {
+//   return (
+//     <div className="flex flex-col md:flex-row gap-4 mb-6">
+//       <select
+//         value={selectedClass}
+//         onChange={(e) => setSelectedClass(e.target.value ? Number(e.target.value) : null)}
+//         className="border rounded px-3 py-2"
+//       >
+//         {classes.map(c => (
+//           <option key={c.id} value={c.id}>
+//             {c.name}
+//           </option>
+//         ))}
+//       </select>
+
+//       <input
+//         type="text"
+//         placeholder="Search by name or ID"
+//         value={searchQuery}
+//         onChange={(e) => setSearchQuery(e.target.value)}
+//         className="border rounded px-3 py-2 w-full"
+//       />
+//     </div>
+//   );
+// };
+
+// export default PaymentFilters;
 const PaymentFilters = ({
   selectedClass,
   setSelectedClass,
@@ -8,11 +41,16 @@ const PaymentFilters = ({
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <select
-        value={selectedClass}
-        onChange={(e) => setSelectedClass(e.target.value)}
+        value={selectedClass ?? ""}
+        onChange={(e) =>
+          setSelectedClass(e.target.value ? Number(e.target.value) : null)
+        }
         className="border rounded px-3 py-2"
       >
-        {classes.map(c => (
+        {/* ✅ Add an "All Classes" option */}
+        <option value="">All Classes</option>
+
+        {classes.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
           </option>

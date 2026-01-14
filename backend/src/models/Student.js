@@ -205,7 +205,7 @@ class Student {
     }
   }
 
-  static async getWithStatus({ class_id, term_id, search }) {
+  static async getWithStatus({ class_id, term_id, search, offset = 0 }) {
   let sql = `
     SELECT 
       s.id,
@@ -233,12 +233,14 @@ class Student {
   }
 
   if (search) {
-    sql += ` AND (s.name ILIKE $${i} OR s.id ILIKE $${i})`;
+    sql += ` AND s.name ILIKE $${i} `;
     params.push(`%${search}%`);
     i++;
   }
 
-  sql += ` GROUP BY s.id, s.name, c.name, sf.amount ORDER BY s.name ASC`;
+  sql += ` GROUP BY s.id, s.name, c.name, sf.amount ORDER BY s.name ASC LIMIT $${i} OFFSET $${i+1}`;
+  params.push(40); // limit to 40 students
+    params.push(offset || 0); 
 
   try {
     const res = await db.query(sql, params);

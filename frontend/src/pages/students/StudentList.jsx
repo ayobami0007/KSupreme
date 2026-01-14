@@ -86,7 +86,7 @@ const StudentList = () => {
   const { activeTerm, loading } = useTerm();
 
   const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedClass, setSelectedClass] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [students, setStudents] = useState([]);
 
@@ -96,7 +96,7 @@ const StudentList = () => {
       try {
         const data = await getClasses();
         setClasses(data);
-        if (data.length > 0) setSelectedClass(data[0].id); // ✅ use ID instead of name
+        // if (data.length > 0) setSelectedClass(data[0].id); // ✅ use ID instead of name
       } catch (err) {
         console.error("Failed to load classes:", err);
       }
@@ -107,9 +107,9 @@ const StudentList = () => {
   // Load students whenever class or search changes
   useEffect(() => {
     const loadStudents = async () => {
-      if (!activeTerm || !selectedClass) return;
+      if (!activeTerm ) return;
       try {
-        const data = await getStudentsByClass(selectedClass, activeTerm.id, searchQuery);
+        const data = await getStudentsByClass(selectedClass, activeTerm.id, searchQuery, offset);
         setStudents(data);
       } catch (err) {
         console.error("Failed to load students:", err);
