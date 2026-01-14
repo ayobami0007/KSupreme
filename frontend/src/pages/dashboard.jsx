@@ -36,7 +36,7 @@ const Dashboard = () => {
         <strong>Active Term:</strong> {activeTerm.session} – {activeTerm.term}
       </p>
       <SummaryCards stats={stats} />
-      <PaymentsTable payments={[]} /> {/* Next: connect payments */}
+      <PaymentsTable payments={[]} /> 
     </div>
   );
 };
