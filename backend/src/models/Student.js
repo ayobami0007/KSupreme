@@ -204,6 +204,51 @@ class Student {
       throw this.mapDbError(err);
     }
   }
+
+  static async getWithStatus({ class_id, term_id, search }) {
+  let sql = `
+    SELECT 
+      s.id,
+      s.name,
+      c.name AS class,
+      COALESCE(SUM(p.amount_paid), 0) AS total_paid,
+      COALESCE(sf.amount, 0) AS total_fee,
+      CASE 
+        WHEN COALESCE(SUM(p.amount_paid), 0) >= COALESCE(sf.amount, 0) THEN 'Paid'
+        ELSE 'Owing'
+      END AS status
+    FROM students s
+    JOIN classes c ON s.class_id = c.id
+    LEFT JOIN payments p ON p.student_id = s.id AND p.term_id = $1
+    LEFT JOIN school_fees sf ON sf.class_id = c.id AND sf.term_id = $1
+    WHERE 1=1
+  `;
+
+  const params = [term_id];
+  let i = 2;
+
+  if (class_id) {
+    sql += ` AND s.class_id = $${i++}`;
+    params.push(class_id);
+  }
+
+  if (search) {
+    sql += ` AND (s.name ILIKE $${i} OR s.id ILIKE $${i})`;
+    params.push(`%${search}%`);
+    i++;
+  }
+
+  sql += ` GROUP BY s.id, s.name, c.name, sf.amount ORDER BY s.name ASC`;
+
+  try {
+    const res = await db.query(sql, params);
+    return res.rows;
+  } catch (err) {
+    console.error("Error fetching students with status:", err);
+    throw new Error(`Failed to fetch students with status: ${err.message}`);
+  }
+}
+
 }
 
 module.exports = Student;

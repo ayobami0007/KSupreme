@@ -13,7 +13,7 @@ const PaymentFilters = ({
         className="border rounded px-3 py-2"
       >
         {classes.map(c => (
-          <option key={c.id} value={c.name}>
+          <option key={c.id} value={c.id}>
             {c.name}
           </option>
         ))}
