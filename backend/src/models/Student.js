@@ -214,6 +214,7 @@ class Student {
       COALESCE(SUM(p.amount_paid), 0) AS total_paid,
       COALESCE(sf.amount, 0) AS total_fee,
       CASE 
+      WHEN sf.amount IS NULL THEN 'No Fee Set'
         WHEN COALESCE(SUM(p.amount_paid), 0) >= COALESCE(sf.amount, 0) THEN 'Paid'
         ELSE 'Owing'
       END AS status

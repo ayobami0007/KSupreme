@@ -86,6 +86,8 @@ const StudentList = () => {
   const { activeTerm, loading } = useTerm();
 
   const [classes, setClasses] = useState([]);
+  const [offset, setOffset] = useState(0);
+
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [students, setStudents] = useState([]);
@@ -116,7 +118,7 @@ const StudentList = () => {
       }
     };
     loadStudents();
-  }, [selectedClass, searchQuery, activeTerm]);
+  }, [selectedClass, searchQuery, activeTerm, offset]);
 
   if (loading) return <p>Loading....</p>;
   if (!activeTerm) return <p>No active term found</p>;
