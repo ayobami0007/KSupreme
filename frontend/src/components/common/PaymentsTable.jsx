@@ -13,6 +13,7 @@ const PaymentsTable = ({ payments }) => (
             <th className="p-2">Amount Paid</th>
             <th className="p-2">Payment Mode</th>
             <th className="p-2">Date</th>
+            <th className="p-2">Status</th>
           </tr>
         </thead>
 
@@ -24,6 +25,17 @@ const PaymentsTable = ({ payments }) => (
               <td className="p-2">{p.amount}</td>
               <td className="p-2">{p.mode}</td>
               <td className="p-2">{p.date}</td>
+              <td className="p-2">
+                <span
+                  className={`px-2 py-1 rounded text-xs font-semibold ${p.status === "FULL"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                    }`}
+                >
+                  {p.status}
+                </span>
+              </td>
+
             </tr>
           ))}
         </tbody>

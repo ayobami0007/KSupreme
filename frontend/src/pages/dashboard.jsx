@@ -3,14 +3,15 @@ import { useState, useEffect } from "react";
 import SummaryCards from "../components/common/SummaryCards";
 import PaymentsTable from "../components/common/PaymentsTable";
 import { useTerm } from "../context/TermContext";
-import { getDashboardSummary } from "../api/dashboard.api";
+import { getDashboardSummary , getRecentPayments} from "../api/dashboard.api";
 
 const Dashboard = () => {
   const { activeTerm, loading } = useTerm();
   const [stats, setStats] = useState([]);
+  const [payments, setPayments] = useState([])
 
   useEffect(() => {
-    const loadSummary = async () => {
+    const loadData = async () => {
       try {
         const data = await getDashboardSummary();
         setStats([
@@ -19,11 +20,27 @@ const Dashboard = () => {
           { label: "Owing Students", value: data.owing },
           { label: "Total Amount Collected", value: `₦${data.total_amount}` },
         ]);
+        const recent = await getRecentPayments();
+        setPayments(recent.map(p => ({
+          name: p.name,
+          class : p.class,
+          amount: `${p.amount}`,
+          mode: p.mode,
+          date: new Date(p.date).toLocaleDateString("en-GB",{
+            day: "2-digit", month:"short", year: "numeric"
+          } ),
+status:p.status
+         
+        }
+
+        )
+
+        ))
       } catch (err) {
-        console.error("Failed to load summary:", err);
+        console.error("Failed to load dashbaord data:", err);
       }
     };
-    loadSummary();
+    loadData();
   }, []);
 
   if (loading) return <p>Loading....</p>;
@@ -36,7 +53,7 @@ const Dashboard = () => {
         <strong>Active Term:</strong> {activeTerm.session} – {activeTerm.term}
       </p>
       <SummaryCards stats={stats} />
-      <PaymentsTable payments={[]} /> 
+      <PaymentsTable payments={payments} /> 
     </div>
   );
 };
