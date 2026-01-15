@@ -19,9 +19,20 @@ export const updateStudent = async (id, studentData) =>
 //   return res.data;
 // };
 
-export const getStudentsByClass = async (classId, search = "", limit = 40, offset = 0) => {
+// students.api.js
+export const getStudentsByClass = async (
+  classId = null,
+  search = "",
+  limit = 30,
+  offset = 0
+) => {
   const res = await api.get("/students/with-status", {
-    params: { class_id: classId, search, limit, offset }
+    params: {
+      class_id: classId,   // optional: if null, returns all students
+      search,              // optional: filter by name
+      limit,               // default 30 per page
+      offset               // pagination offset
+    }
   });
   return res.data;
 };

@@ -91,7 +91,16 @@ const StudentList = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [students, setStudents] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
 
+
+
+  useEffect(() =>{
+    const delay  = setTimeout(() => {
+      setSearchQuery(searchInput)
+    }, 300);
+    return () => clearTimeout(delay)
+  }, [searchInput] )
   // Load classes once
   useEffect(() => {
     const loadClasses = async () => {
@@ -117,7 +126,7 @@ const StudentList = () => {
     const loadStudents = async () => {
       if (!activeTerm ) return;
       try {
-        const data = await getStudentsByClass(selectedClass,  searchQuery, offset);
+        const data = await getStudentsByClass(selectedClass,  searchQuery,30, offset);
         setStudents(data);
         // setStudents(data);
 console.log("Fetched students:", data);

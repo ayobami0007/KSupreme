@@ -189,6 +189,55 @@ class PaymentModel {
     const res = await db.query(sql, params);
     return res.rows;
   }
+
+  static async getPaymentInfo(student_id, class_id, term_id) {
+  // Get student basic info
+  const studentRes = await db.query(
+    `SELECT s.id, s.name, c.name AS class_name
+     FROM students s
+     JOIN classes c ON s.class_id = c.id
+     WHERE s.id = $1`,
+    [student_id]
+  );
+  const student = studentRes.rows[0];
+  if (!student) throw new Error("Student not found");
+
+  // Get fee amount
+  const feeRes = await db.query(
+    `SELECT amount FROM school_fees WHERE class_id=$1 AND term_id=$2`,
+    [class_id, term_id]
+  );
+  const feeRow = feeRes.rows[0];
+  if (!feeRow) throw new Error("School fee not set for this class & term");
+  const totalFee = Number(feeRow.amount);
+
+  // Get total paid
+  const totalPaid = await this.getTotalPaid(student_id, class_id, term_id);
+
+  // Compute balance & status
+  const balance = totalFee - totalPaid;
+  let status = "Not Paid";
+  if (totalPaid === 0) status = "Not Paid";
+  else if (totalPaid < totalFee) status = "Partially Paid";
+  else status = "Fully Paid";
+
+  // Get payment history
+  const payments = await this.getForStudent(student_id, { class_id, term_id });
+
+  return {
+    id: student.id,
+    name: student.name,
+    class: student.class_name,
+    total_fee: totalFee,
+    total_paid: totalPaid,
+    balance,
+    status,
+    payments
+  };
+}
+
+
+
 }
 
 module.exports = PaymentModel;
