@@ -50,23 +50,34 @@ router.put("/:id", async (req, res) => {
 
 // router.get("/with-status", async (req, res) => {
 //   try {
-//     const students = await Student.getWithStatus(req.query);
+//     const { class_id, termName, sessionName, search, offset } = req.query;
+//     const students = await Student.getWithStatus({ class_id, termName, sessionName, search, offset });
 //     res.json(students);
 //   } catch (err) {
 //     console.error("Error fetching students with status:", err);
 //     res.status(500).json({ error: err.message });
 //   }
 // });
+
 router.get("/with-status", async (req, res) => {
   try {
-    const { class_id, termName, sessionName, search, offset } = req.query;
-    const students = await Student.getWithStatus({ class_id, termName, sessionName, search, offset });
+    const { class_id, search, limit, offset } = req.query;
+
+    // Call the updated model method (which uses active term internally)
+    const students = await Student.getWithStatus({
+      class_id,
+      search,
+      limit: limit ? parseInt(limit) : 40,
+      offset: offset ? parseInt(offset) : 0
+    });
+
     res.json(students);
   } catch (err) {
     console.error("Error fetching students with status:", err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 

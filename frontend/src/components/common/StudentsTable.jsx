@@ -34,20 +34,21 @@ const StudentsTable = ({ students }) => {
                 <td className="p-2">{s.class}</td>
                 <td className="p-2">
                   <span
-                    className={`px-2 py-1 rounded ${
-                      s.status === "Paid"
+                    className={`px-2 py-1 rounded ${s.status === "Paid"
                         ? "bg-green-200"
-                        : "bg-orange-200"
-                    }`}
+                        : s.status === "No Fee Set"
+                          ? "bg-gray-300"
+                          : "bg-orange-200"
+                      }`}
                   >
                     {s.status}
                   </span>
                 </td>
                 <td className="p-2">
                   <Link to={`/students/${s.id}/payment`}>
-                  <button className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer">
-                    {s.status === "Paid" ? "View" : "Pay"}
-                  </button>
+                    <button className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer">
+                      {s.status === "Paid" ? "View" : "Pay"}
+                    </button>
                   </Link>
                 </td>
               </tr>
