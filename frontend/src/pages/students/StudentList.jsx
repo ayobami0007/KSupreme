@@ -111,7 +111,7 @@ const StudentList = () => {
     const loadStudents = async () => {
       if (!activeTerm ) return;
       try {
-        const data = await getStudentsByClass(selectedClass, activeTerm.id, searchQuery, offset);
+        const data = await getStudentsByClass(selectedClass, activeTerm.term, activeTerm.session, searchQuery, offset);
         setStudents(data);
       } catch (err) {
         console.error("Failed to load students:", err);
