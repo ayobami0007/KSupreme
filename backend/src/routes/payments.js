@@ -173,7 +173,7 @@ router.get("/:id", async (req, res) => {
 
 
 
-app.get("/students/:id/payment-info", async (req, res) => {
+router.get("/students/:id/payment-info", async (req, res) => {
   try {
     const studentId = Number(req.params.id);
     const { class_id, term_id } = req.query; // frontend will pass these
