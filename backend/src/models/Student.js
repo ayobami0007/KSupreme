@@ -260,7 +260,7 @@ class Student {
 //     throw new Error(`Failed to fetch students with status: ${err.message}`);
 //   }
 // }
-static async getWithStatus({ class_id, search, limit = 40, offset = 0 }) {
+static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 0 }) {
   // 1️⃣ Find the active term
   const termRes = await db.query(
     "SELECT id FROM terms WHERE is_active = true LIMIT 1"
@@ -298,11 +298,13 @@ static async getWithStatus({ class_id, search, limit = 40, offset = 0 }) {
   const params = [activeTerm.id];
   let i = 2;
 
+  // 🔎 Filter by class if dropdown selects one
   if (class_id) {
     sql += ` AND s.class_id = $${i++}`;
-    params.push(class_id);
+    params.push(parseInt(class_id));
   }
 
+  // 🔎 Search filter
   if (search) {
     sql += ` AND s.name ILIKE $${i++}`;
     params.push(`%${search}%`);
@@ -322,6 +324,7 @@ static async getWithStatus({ class_id, search, limit = 40, offset = 0 }) {
     throw new Error(`Failed to fetch students with status: ${err.message}`);
   }
 }
+
 
 
 }

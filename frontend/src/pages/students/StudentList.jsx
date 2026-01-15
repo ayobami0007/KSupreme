@@ -98,13 +98,19 @@ const StudentList = () => {
       try {
         const data = await getClasses();
         setClasses(data);
-        // if (data.length > 0) setSelectedClass(data[0].id); // ✅ use ID instead of name
+        //  console.log("Selected class:", selectedClass);
+        if (data.length > 0) setSelectedClass(data[0].id); 
       } catch (err) {
         console.error("Failed to load classes:", err);
       }
     };
     loadClasses();
   }, []);
+
+  useEffect(() => {
+  console.log("Selected class changed:", selectedClass);
+}, [selectedClass]);
+
 
   // Load students whenever class or search changes
   useEffect(() => {
@@ -113,6 +119,13 @@ const StudentList = () => {
       try {
         const data = await getStudentsByClass(selectedClass,  searchQuery, offset);
         setStudents(data);
+        // setStudents(data);
+console.log("Fetched students:", data);
+
+        console.log("Active term:", activeTerm);
+
+       
+
       } catch (err) {
         console.error("Failed to load students:", err);
       }

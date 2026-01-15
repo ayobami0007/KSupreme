@@ -63,11 +63,10 @@ router.get("/with-status", async (req, res) => {
   try {
     const { class_id, search, limit, offset } = req.query;
 
-    // Call the updated model method (which uses active term internally)
     const students = await Student.getWithStatus({
-      class_id,
-      search,
-      limit: limit ? parseInt(limit) : 40,
+      class_id: class_id ? parseInt(class_id) : null,
+      search: search || "",
+      limit: limit ? parseInt(limit) : 30,
       offset: offset ? parseInt(offset) : 0
     });
 
@@ -77,6 +76,7 @@ router.get("/with-status", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 
