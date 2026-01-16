@@ -1,83 +1,164 @@
-  import { useState } from "react";
-  import { useNavigate } from "react-router-dom";
-  import { useAuth } from "../../context/AuthContext";
+  // import { useState } from "react";
+  // import { useNavigate } from "react-router-dom";
+  // import { useAuth } from "../../context/AuthContext";
 
-  export default function Login() {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+  // export default function Login() {
+  //   const [username, setUsername] = useState("");
+  //   const [password, setPassword] = useState("");
+  //   const [error, setError] = useState("");
+  //   const [loading, setLoading] = useState(false);
 
-    const { login } = useAuth();
-    const navigate = useNavigate();
+  //   const { login } = useAuth();
+  //   const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError("");
-      setLoading(true);
+  //   const handleSubmit = async (e) => {
+  //     e.preventDefault();
+  //     setError("");
+  //     setLoading(true);
 
-      try {
-        await login({ username, password });
-        navigate("/");
-      } catch (err) {
-        setError(
-          err.response?.data?.error || "Login failed"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+  //     try {
+  //       await login({ username, password });
+  //       navigate("/");
+  //     } catch (err) {
+  //       setError(
+  //         err.response?.data?.error || "Login failed"
+  //       );
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+  //       <form
+  //         onSubmit={handleSubmit}
+  //         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+  //       >
+  //         <h2 className="text-2xl font-bold mb-6 text-center">
+  //           School Payment Portal
+  //         </h2>
+
+  //         {error && (
+  //           <p className="text-red-600 mb-4 text-sm text-center">
+  //             {error}
+  //           </p>
+  //         )}
+
+  //         <div className="mb-4">
+  //           <label className="block text-sm font-medium mb-1">
+  //             Username
+  //           </label>
+  //           <input
+  //             type="text"
+  //             className="w-full border rounded px-3 py-2"
+  //             value={username}
+  //             onChange={(e) => setUsername(e.target.value)}
+  //             required
+  //           />
+  //         </div>
+
+  //         <div className="mb-6">
+  //           <label className="block text-sm font-medium mb-1">
+  //             Password
+  //           </label>
+  //           <input
+  //             type="password"
+  //             className="w-full border rounded px-3 py-2"
+  //             value={password}
+  //             onChange={(e) => setPassword(e.target.value)}
+  //             required
+  //           />
+  //         </div>
+
+  //         <button
+  //           type="submit"
+  //           disabled={loading}
+  //           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+  //         >
+  //           {loading ? "Logging in..." : "Login"}
+  //         </button>
+  //       </form>
+  //     </div>
+  //   );
+  // }
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+
+export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await login({ username, password });
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.error || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-sm sm:max-w-md md:max-w-lg"
+      >
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 text-center">
+          School Payment Portal
+        </h2>
+
+        {error && (
+          <p className="text-red-600 mb-4 text-sm sm:text-base text-center">
+            {error}
+          </p>
+        )}
+
+        <div className="mb-4">
+          <label className="block text-sm sm:text-base font-medium mb-1">
+            Username
+          </label>
+          <input
+            type="text"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm sm:text-base font-medium mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 sm:py-3 rounded hover:bg-blue-700 transition text-sm sm:text-base font-medium"
         >
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            School Payment Portal
-          </h2>
-
-          {error && (
-            <p className="text-red-600 mb-4 text-sm text-center">
-              {error}
-            </p>
-          )}
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">
-              Username
-            </label>
-            <input
-              type="text"
-              className="w-full border rounded px-3 py-2"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full border rounded px-3 py-2"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
-      </div>
-    );
-  }
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
+    </div>
+  );
+}

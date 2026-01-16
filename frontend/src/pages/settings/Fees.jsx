@@ -89,7 +89,7 @@ export default function FeesPage() {
           <option value="">Select Term</option>
           {terms.map((t) => (
             <option key={t.id} value={t.id}>
-              {t.name}
+              {t.name} -{t.session_name}
             </option>
           ))}
         </select>

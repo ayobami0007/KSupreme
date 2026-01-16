@@ -125,17 +125,17 @@ export default function TermsPage() {
             <tr className="bg-gray-100">
               <th className="border p-2">ID</th>
               <th className="border p-2">Name</th>
+              <th className="border p-2">Stauts</th>
               <th className="border p-2">Session</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Actions</th>
+              {/* <th className="border p-2">Actions</th> */}
             </tr>
           </thead>
-          <tbody>
+          {/* <tbody>
             {terms.map((t) => (
               <tr key={t.id}>
                 <td className="border p-2">{t.id}</td>
                 <td className="border p-2">{t.name}</td>
-                <td className="border p-2">{t.session_id}</td>
+                <td className="border p-2">{t.session_name}</td>
                 <td className="border p-2">
                   {t.is_active ? "Active" : "Inactive"}
                 </td>
@@ -151,7 +151,32 @@ export default function TermsPage() {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
+          <tbody>
+  {terms.map((t) => (
+    <tr key={t.id}>
+      <td className="border p-2">{t.id}</td>
+      {/* Show term name and session name together */}
+      <td className="border p-2">
+        {t.name} – {t.session_name}
+      </td>
+      <td className="border p-2">
+        {t.is_active ? "Active" : "Inactive"}
+      </td>
+      <td className="border p-2">
+        {!t.is_active && (
+          <button
+            className="px-3 py-1 bg-green-600 text-white rounded"
+            onClick={() => handleActivate(t.id)}
+          >
+            Activate
+          </button>
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
     </div>

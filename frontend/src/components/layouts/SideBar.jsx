@@ -28,8 +28,8 @@ export default function Sidebar() {
       )}
     {/* <aside className="w-64 h-screen bg-blue-900 text-white fixed"> */}
       <aside className={` fixed md:static inset-y-0 left-0 w-64 h-screen bg-blue-900
-       text-white transform transition-transform dur]ation-300 
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 `} >
+       text-white transform transition-transform duration-300 
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0  overflow-hidden`} >
       <div className="p-6 font-bold text-lg">
         School Portal
       </div>
@@ -82,7 +82,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="absolute bottom-4 px-4 w-full">
-        <button className="w-full bg-red-600 p-2 rounded flex items-center gap-2" onClick={() => setIsOpen(false)}>
+        <button className="w-full cursor-pointer p-2 rounded flex items-center gap-2" onClick={() => setIsOpen(false)}>
           <ArrowRightOnRectangleIcon className="h-5 w-5" /> Logout
         </button>
       </div>
