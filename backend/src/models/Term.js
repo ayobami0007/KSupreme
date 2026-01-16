@@ -136,37 +136,8 @@ class Term {
   }
 
   // Get all terms for a session
-  static async getAllBySession(session_id) {
-    try {
-      const res = await db.query(
-        "SELECT * FROM terms WHERE session_id = $1 ORDER BY id ASC",
-        [session_id]
-      );
-      return res.rows;
-    } catch (err) {
-      console.error("Error fetching terms:", err);
-      throw new Error(`Failed to fetch terms: ${err.message}`);
-    }
-  }
 
-  // Set one term as active globally
-  // static async setActive(id) {
-  //   try {
-  //     // Deactivate all terms
-  //     await db.query("UPDATE terms SET is_active = false");
 
-  //     // Activate the chosen term
-  //     const res = await db.query(
-  //       "UPDATE terms SET is_active = true WHERE id = $1 RETURNING *",
-  //       [id]
-  //     );
-
-  //     return res.rows[0] || null;
-  //   } catch (err) {
-  //     console.error("Failed to set active term:", err);
-  //     throw new Error(`Failed to set active term: ${err.message}`);
-  //   }
-  // }
 
   static async setActive(id) {
   try {
@@ -191,34 +162,72 @@ class Term {
 }
 
 
-  // Get all terms (across all sessions)
+ 
   static async getAll() {
-    try {
-      const res = await db.query(
-        "SELECT * FROM terms ORDER BY id ASC"
-      );
-      return res.rows;
-    } catch (err) {
-      console.error("Error fetching all terms:", err);
-      throw new Error(`Failed to fetch all terms: ${err.message}`);
-    }
+  try {
+    const res = await db.query(
+      `SELECT t.id, t.name, t.is_active, t.session_id, s.name AS session_name
+       FROM terms t
+       JOIN sessions s ON t.session_id = s.id
+       ORDER BY t.id ASC`
+    );
+    return res.rows;
+  } catch (err) {
+    console.error("Error fetching all terms:", err);
+    throw new Error(`Failed to fetch all terms: ${err.message}`);
   }
+}
+
+static async getAllBySession(session_id) {
+  try {
+    const res = await db.query(
+      `SELECT t.id, t.name, t.is_active, t.session_id, s.name AS session_name
+       FROM terms t
+       JOIN sessions s ON t.session_id = s.id
+       WHERE t.session_id = $1
+       ORDER BY t.id ASC`,
+      [session_id]
+    );
+    return res.rows;
+  } catch (err) {
+    console.error("Error fetching terms:", err);
+    throw new Error(`Failed to fetch terms: ${err.message}`);
+  }
+}
 
   // Get active term for a session
+  // static async getActiveBySession(session_id) {
+  //   try {
+  //     const res = await db.query(
+  //       "SELECT * FROM terms WHERE session_id = $1 AND is_active = true LIMIT 1",
+  //       [session_id]
+  //     );
+  //     if (res.rows.length === 0) {
+  //        throw new Error(`No active term found for session ${session_id}.`); }
+  //     return res.rows[0] || null;
+  //   } catch (err) {
+  //     console.error("Error fetching active term:", err);
+  //     throw new Error(`Failed to get active term: ${err.message}`);
+  //   }
+  // }
+
   static async getActiveBySession(session_id) {
-    try {
-      const res = await db.query(
-        "SELECT * FROM terms WHERE session_id = $1 AND is_active = true LIMIT 1",
-        [session_id]
-      );
-      if (res.rows.length === 0) {
-         throw new Error(`No active term found for session ${session_id}.`); }
-      return res.rows[0] || null;
-    } catch (err) {
-      console.error("Error fetching active term:", err);
-      throw new Error(`Failed to get active term: ${err.message}`);
-    }
+  try {
+    const res = await db.query(
+      `SELECT t.id, t.name, t.is_active, t.session_id, s.name AS session_name
+       FROM terms t
+       JOIN sessions s ON t.session_id = s.id
+       WHERE t.session_id = $1 AND t.is_active = true
+       LIMIT 1`,
+      [session_id]
+    );
+    return res.rows[0] || null;
+  } catch (err) {
+    console.error("Error fetching active term:", err);
+    throw new Error(`Failed to get active term: ${err.message}`);
   }
+}
+
 }
 
 module.exports = Term;

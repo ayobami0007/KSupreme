@@ -28,7 +28,7 @@ export default function TermsPage() {
   };
 
   const loadTerms = async () => {
-    try {4
+    try {
       const data = await getTerms();
       console.log("Terms from API:", data);
       setTerms(data);

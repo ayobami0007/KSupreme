@@ -34,8 +34,8 @@
 const PaymentFilters = ({
   selectedClass,
   setSelectedClass,
-  setInput,
- setSearchinput,
+  searchInput,
+ setSearchInput,
   classes = []
 }) => {
   return (
@@ -60,8 +60,8 @@ const PaymentFilters = ({
       <input
         type="text"
         placeholder="Search by name or ID"
-        value={setInput}
-        onChange={(e) => setSearchinput(e.target.value)}
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
         className="border rounded px-3 py-2 w-full"
       />
     </div>

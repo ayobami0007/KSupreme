@@ -47,14 +47,15 @@ status:p.status
   if (!activeTerm) return <p>No active term found</p>;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-2">School Financial Dashboard</h1>
-      <p className="mb-4">
-        <strong>Active Term:</strong> {activeTerm.session} – {activeTerm.term}
-      </p>
-      <SummaryCards stats={stats} />
-      <PaymentsTable payments={payments} /> 
-    </div>
+   <div className="p-4 sm:p-6 bg-gray-50 min-h-screen"> {/* Header */} 
+   <h1 className="text-2xl sm:text-3xl font-bold mb-2"> School Financial Dashboard </h1> 
+   <p className="mb-4 text-sm sm:text-base"> <strong>Active Term:</strong> {activeTerm.session} – {activeTerm.term} 
+   </p> {/* Summary cards: grid responsive */} 
+
+     <SummaryCards stats={stats} /> 
+      {/* Payments table: responsive container */} 
+      <div className="bg-white rounded shadow p-4 overflow-x-auto"> 
+   <PaymentsTable payments={payments} /> </div> </div>
   );
 };
 

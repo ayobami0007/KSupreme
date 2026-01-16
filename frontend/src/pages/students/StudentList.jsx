@@ -45,7 +45,7 @@
 
 //   const recentPayments = students.filter((s) => s.status === "Paid");
 
-   
+
 //   if (loading) return <p>Loading....</p>
 //   if(!activeTerm) return <p>No active term found</p>
 
@@ -65,7 +65,7 @@
 //       <StudentsTable students={filteredStudents} />
 
 //       <RecentPaymentsTable payments={recentPayments} />
-      
+
 //     </div>
 //   );
 // };
@@ -86,21 +86,25 @@ const StudentList = () => {
   const { activeTerm, loading } = useTerm();
 
   const [classes, setClasses] = useState([]);
-  const [offset, setOffset] = useState(0);
+  // const [offset, setOffset] = useState(0);
 
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [students, setStudents] = useState([]);
   const [searchInput, setSearchInput] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1)
+  const limit = 10;
 
 
 
-  useEffect(() =>{
-    const delay  = setTimeout(() => {
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
       setSearchQuery(searchInput)
     }, 300);
     return () => clearTimeout(delay)
-  }, [searchInput] )
+  }, [searchInput])
   // Load classes once
   useEffect(() => {
     const loadClasses = async () => {
@@ -108,7 +112,7 @@ const StudentList = () => {
         const data = await getClasses();
         setClasses(data);
         //  console.log("Selected class:", selectedClass);
-        if (data.length > 0) setSelectedClass(data[0].id); 
+        if (data.length > 0) setSelectedClass(data[0].id);
       } catch (err) {
         console.error("Failed to load classes:", err);
       }
@@ -117,30 +121,26 @@ const StudentList = () => {
   }, []);
 
   useEffect(() => {
-  console.log("Selected class changed:", selectedClass);
-}, [selectedClass]);
+    console.log("Selected class changed:", selectedClass);
+  }, [selectedClass]);
 
 
   // Load students whenever class or search changes
   useEffect(() => {
     const loadStudents = async () => {
-      if (!activeTerm ) return;
+      if (!activeTerm) return;
       try {
-        const data = await getStudentsByClass(selectedClass,  searchQuery,30, offset);
-        setStudents(data);
-        // setStudents(data);
-console.log("Fetched students:", data);
+        const offset = (currentPage - 1) * limit;
 
-        console.log("Active term:", activeTerm);
-
-       
-
-      } catch (err) {
+        const data = await getStudentsByClass(selectedClass, searchQuery, limit, offset);
+        setStudents(data.rows);
+       setTotalPages(Math.ceil(data.totalCount / limit))
+     } catch (err) {
         console.error("Failed to load students:", err);
       }
     };
     loadStudents();
-  }, [selectedClass, searchQuery, activeTerm, offset]);
+  }, [selectedClass, searchQuery, activeTerm, currentPage]);
 
   if (loading) return <p>Loading....</p>;
   if (!activeTerm) return <p>No active term found</p>;
@@ -155,12 +155,16 @@ console.log("Fetched students:", data);
       <PaymentFilters
         selectedClass={selectedClass}
         setSelectedClass={setSelectedClass}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
         classes={classes}
       />
 
-      <StudentsTable students={students} />
+      <StudentsTable students={students}
+      currentPage ={currentPage}
+      totalPages ={totalPages}
+      onPageChange={setCurrentPage}/>
+   
     </div>
   );
 };

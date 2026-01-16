@@ -99,7 +99,7 @@ useEffect(() => {
       <h1 className="text-3xl font-bold mb-6">Class Management</h1>
 
       {/* Add Class Form */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
+      {/* <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Add New Class</h2>
 
         <label className="block mb-2 text-sm font-medium">Class Name</label>
@@ -165,7 +165,7 @@ useEffect(() => {
         >
           Add Class
         </button>
-      </div>
+      </div> */}
 
       {/* Classes Table */}
       <div className="bg-white rounded-lg shadow p-6">
