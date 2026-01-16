@@ -21,7 +21,7 @@ const StudentDashboard = () => {
 
   const {id} = useParams();
   const [student, setStudent] = useState(null);
-const {activeTerm} = useTerm();
+
 
   const [payments, setPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -53,12 +53,8 @@ const {activeTerm} = useTerm();
 useEffect(() => {
   const loadStudent = async () => {
     try {
-      console.log("Fetching payment info with:", { id, term_id: activeTerm.termId });
-
-      // Fetch student payment info directly
-      const data = await getStudentPaymentInfo(id, activeTerm.termId);
-
-      // Backend response already includes class_id and term_id
+      console.log("Fetching payment info with:", { id });
+      const data = await getStudentPaymentInfo(id);
       setStudent(data);
       setPayments(data.payments || []);
     } catch (err) {
@@ -66,10 +62,9 @@ useEffect(() => {
     }
   };
 
-  if (activeTerm) {
-    loadStudent();
-  }
-}, [id, activeTerm]);
+  loadStudent();
+}, [id]);
+
 
 
     if(!student) return <p>Loading....</p>

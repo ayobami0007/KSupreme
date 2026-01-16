@@ -205,7 +205,17 @@ class Student {
     }
   }
 
-// static async getWithStatus({ class_id, termName, sessionName, search, offset = 0 }) {
+
+// static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 0 }) {
+//   // 1️⃣ Find the active term
+//   const termRes = await db.query(
+//     "SELECT id FROM terms WHERE is_active = true LIMIT 1"
+//   );
+//   const activeTerm = termRes.rows[0];
+//   if (!activeTerm) {
+//     throw new Error("No active term found.");
+//   }
+
 //   let sql = `
 //     SELECT 
 //       s.id,
@@ -213,6 +223,7 @@ class Student {
 //       c.name AS class,
 //       COALESCE(SUM(p.amount_paid), 0) AS total_paid,
 //       COALESCE(sf.amount, 0) AS total_fee,
+//       (COALESCE(sf.amount,0) - COALESCE(SUM(p.amount_paid),0)) AS balance,
 //       CASE 
 //         WHEN sf.amount IS NULL THEN 'No Fee Set'
 //         WHEN COALESCE(SUM(p.amount_paid), 0) >= sf.amount THEN 'Paid'
@@ -220,37 +231,36 @@ class Student {
 //       END AS status
 //     FROM students s
 //     JOIN classes c ON s.class_id = c.id
-//     LEFT JOIN payments p ON p.student_id = s.id
+//     LEFT JOIN payments p 
+//       ON p.student_id = s.id 
+//      AND p.class_id = c.id 
+//      AND p.term_id = $1
 //     LEFT JOIN school_fees sf 
 //       ON sf.class_id = c.id 
-//      AND sf.term_id = (
-//         SELECT t.id
-//         FROM terms t
-//         JOIN sessions ss ON t.session_id = ss.id
-//         WHERE t.name = $1 AND ss.name = $2
-//       )
+//      AND sf.term_id = $1
 //     WHERE 1=1
 //   `;
 
-//   const params = [termName, sessionName];
-//   let i = 3;
+//   const params = [activeTerm.id];
+//   let i = 2;
 
+//   // 🔎 Filter by class if dropdown selects one
 //   if (class_id) {
 //     sql += ` AND s.class_id = $${i++}`;
-//     params.push(class_id);
+//     params.push(parseInt(class_id));
 //   }
 
+//   // 🔎 Search filter
 //   if (search) {
-//     sql += ` AND s.name ILIKE $${i}`;
+//     sql += ` AND s.name ILIKE $${i++}`;
 //     params.push(`%${search}%`);
-//     i++;
 //   }
 
 //   sql += ` GROUP BY s.id, s.name, c.name, sf.amount 
 //            ORDER BY s.name ASC 
 //            LIMIT $${i} OFFSET $${i+1}`;
-//   params.push(40); // limit
-//   params.push(offset || 0);
+//   params.push(limit);
+//   params.push(offset);
 
 //   try {
 //     const res = await db.query(sql, params);
@@ -260,6 +270,7 @@ class Student {
 //     throw new Error(`Failed to fetch students with status: ${err.message}`);
 //   }
 // }
+
 static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 0 }) {
   // 1️⃣ Find the active term
   const termRes = await db.query(
@@ -298,13 +309,11 @@ static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 
   const params = [activeTerm.id];
   let i = 2;
 
-  // 🔎 Filter by class if dropdown selects one
   if (class_id) {
     sql += ` AND s.class_id = $${i++}`;
     params.push(parseInt(class_id));
   }
 
-  // 🔎 Search filter
   if (search) {
     sql += ` AND s.name ILIKE $${i++}`;
     params.push(`%${search}%`);
@@ -316,15 +325,33 @@ static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 
   params.push(limit);
   params.push(offset);
 
+  // 🔎 Count query for total rows (without limit/offset)
+  let countSql = `
+    SELECT COUNT(*) AS total
+    FROM students s
+    WHERE 1=1
+  `;
+  const countParams = [];
+  if (class_id) {
+    countSql += ` AND s.class_id = $${countParams.length + 1}`;
+    countParams.push(parseInt(class_id));
+  }
+  if (search) {
+    countSql += ` AND s.name ILIKE $${countParams.length + 1}`;
+    countParams.push(`%${search}%`);
+  }
+
   try {
     const res = await db.query(sql, params);
-    return res.rows;
+    const countRes = await db.query(countSql, countParams);
+    const totalCount = parseInt(countRes.rows[0].total, 10);
+
+    return { rows: res.rows, totalCount };
   } catch (err) {
     console.error("Error fetching students with status:", err);
     throw new Error(`Failed to fetch students with status: ${err.message}`);
   }
 }
-
 
 
 }
