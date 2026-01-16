@@ -1,61 +1,104 @@
 
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import StudentInfoCard from "../../components/student/StudentInfoCard";
 import FeeSummaryCards from "../../components/student/FeeSummaryCards";
 import PaymentProgress from "../../components/student/PaymentProgress";
 import PaymentHistoryTable from "../../components/student/PaymentHistoryTable";
 import AddPaymentModal from "../../components/student/AddPaymentModal";
+import {useParams} from "react-router-dom";
+import { getStudentPaymentInfo , addPayment} from "../../api/payments.api";
+import { getActiveTerm } from "../../api/terms.api";
 
 const StudentDashboard = () => {
-  const student = {
-    name: "Esther Akpan",
-    id: "IDS 1001",
-    class: "Primary 1",
-    totalFee: 50000,
-    totalPaid: 40000,
-  };
+  // const student = {
+  //   name: "Esther Akpan",
+  //   id: "IDS 1001",
+  //   class: "Primary 1",
+  //   totalFee: 50000,
+  //   totalPaid: 40000,
+  // };
+
+  const {id} = useParams();
+  const [student, setStudent] = useState(null);
+
 
   const [payments, setPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  
+
+  useEffect(() =>{
+    const loadStudent = async () =>{
+      const activeTerm = await getActiveTerm();
+      const studentData = await getStudentById (id)
+     const data = await getStudentPaymentInfo(studentData.id, studentData.class_id, activeTerm.id);
+setStudent({ ...data, class_id: studentData.class_id, term_id: activeTerm.id });
+      setPayments(data.payments || [])
+    };
+    loadStudent()
+  }, [id])
+
+    if(!student) return <p>Loading....</p>
 
   // Compute totalPaid dynamically
-  const totalPaid = student.totalPaid + payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const balance = student.totalFee - totalPaid;
+  const totalPaid = student.total_paid 
+  const balance = student.balance;
 
-  // Determine payment status
-  let status = "";
-  if (totalPaid === 0) status = "Not Paid";
-  else if (totalPaid < student.totalFee) status = "Partially Paid";
-  else status = "Fully Paid";
+  const handleAddPayment = async(newPayment) =>{
+    try{
+      const payload = {
+        ...newPayment,
+        student_id : student.id,
+        class_id : student.class_id,
+        term_id : student.term_id
 
-  const handleAddPayment = (newPayment) => {
-    const paymentWithDate = {
-      ...newPayment,
-      date: new Date().toLocaleDateString(),
-      enteredBy: "Admin1",
-    };
-    setPayments([...payments, paymentWithDate]);
-    setShowAddModal(false);
-  };
+     }
+     const res = await addPayment(payload);
+
+     setPayments([...payments, res.payment])
+     setStudent({
+      ...student,
+      total_paid : res.total_paid,
+      balance : res.balance
+
+      
+     });
+     setShowAddModal(false)
+     console.log("Sending payment payload:", payload);
+
+    } catch(error){
+      console.error("Error saving payments:", error)
+      alert(error.response?.data?.error || "Failed to save payment. Please Try again.")
+    }
+  }
+
+  // const handleAddPayment = async (newPayment) => {
+  //   const paymentWithDate = {
+  //     ...newPayment,
+  //     payment_date: new Date().toISOString(),
+  //     enteredBy: "Admin1",
+  //   };
+  //   setPayments([...payments, paymentWithDate]);
+
+  //   setStudent({
+  //     ...student,
+  //     total_paid: student.total_paid + Number(newPayment.amount_paid),
+  //     balance: student.total_fee - (student.total_paid + Number(newPayment.amount_paid)),
+  //   })
+
+  //   setShowAddModal(false);
+  // };
+
+
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Student Payment Dashboard</h1>
 
-      <StudentInfoCard student={{ ...student, totalPaid, balance, status }} />
-      <FeeSummaryCards student={{ ...student, totalPaid, balance, status }} />
-      <PaymentProgress totalPaid={totalPaid} totalFee={student.totalFee} />
-
-      <PaymentHistoryTable
-  payments={payments}
-  onAddPayment={() => {
-    if (status === "Fully Paid") {
-      alert("Payment completed. No balance remaining.");
-    } else {
-      setShowAddModal(true);
-    }
-  }}
-/>
+    <StudentInfoCard student={{ ...student, total_paid: totalPaid, balance }} />
+      <FeeSummaryCards student={{ ...student, total_paid: totalPaid, balance }} />
+      <PaymentProgress totalPaid={totalPaid} totalFee={student.total_fee} />
+      <PaymentHistoryTable payments={payments} onAddPayment={() => setShowAddModal(true)} />
+ 
 
 
       <AddPaymentModal

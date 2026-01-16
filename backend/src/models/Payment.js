@@ -228,6 +228,8 @@ class PaymentModel {
     id: student.id,
     name: student.name,
     class: student.class_name,
+    class_id,
+    term_id,
     total_fee: totalFee,
     total_paid: totalPaid,
     balance,

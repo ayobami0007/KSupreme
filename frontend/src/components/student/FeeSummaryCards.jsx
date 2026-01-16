@@ -4,8 +4,8 @@ import React from "react";
 const FeeSummaryCards = ({ student }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <Card title="Total Fee" value={student.totalFee} color="blue" />
-      <Card title="Total Paid" value={student.totalPaid} color="green" />
+      <Card title="Total Fee" value={student.total_fee} color="blue" />
+      <Card title="Total Paid" value={student.total_paid} color="green" />
       <Card title="Balance" value={student.balance} color="red" />
       <Card title="Status" value={student.status} color="yellow" />
     </div>

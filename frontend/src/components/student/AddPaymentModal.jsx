@@ -5,10 +5,11 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
   const [mode, setMode] = useState("Cash");
   const [remark, setRemark] = useState("");
   const [error, setError] = useState("");
+const [enteredBy, setEnteredBy] = useState("");
 
   const handleSave = () => {
     if(Number(amount) > balance){
-      setError(`amount cannot exceed remaining balance of #${balance.toLocaleString()}`)
+      setError(`amount cannot exceed remaining balance of ₦${balance.toLocaleString()}`)
       return;
     }
     if (Number(amount) 
@@ -16,10 +17,11 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
     return; }
 
 
-    onSave({ amount: Number(amount), mode, remark });
+    onSave({amount_paid: Number(amount), payment_mode: mode, remark , entered_by: enteredBy});
     setAmount("");
     setMode("Cash");
     setRemark("");
+    setEnteredBy("")
     setError("")
     onClose();
   };
@@ -27,7 +29,8 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 bg-red-100  bg-opacity-100 flex items-center justify-center ">
+   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+
       <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">Add Payment</h2>
        {error && <p className="text-red-600 mb-2">{error}</p>}
@@ -60,6 +63,17 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
           className="border w-full mb-4 p-2 rounded"
           placeholder="Optional remark"
         />
+
+
+        <label className="block mb-2 text-sm font-medium">Entered By</label>
+<input
+  type="text"
+  value={enteredBy}
+  onChange={(e) => setEnteredBy(e.target.value)}
+  className="border w-full mb-4 p-2 rounded"
+  placeholder="Who recorded this payment?"
+/>
+
 
         <div className="flex justify-end gap-2">
           <button

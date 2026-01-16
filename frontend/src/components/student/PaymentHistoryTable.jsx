@@ -18,28 +18,33 @@ const PaymentHistoryTable = ({ payments, onAddPayment }) => {
           No payments recorded yet.
         </div>
       ) : (
-        <table className="w-full table-auto border">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2">Date</th>
-              <th className="p-2">Amount</th>
-              <th className="p-2">Mode</th>
-              <th className="p-2">Entered By</th>
-              <th className="p-2">Remark</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((p, idx) => (
-              <tr key={idx} className="border-t">
-                <td className="p-2">{p.date}</td>
-                <td className="p-2">₦{Number(p.amount).toLocaleString()}</td>
-                <td className="p-2">{p.mode}</td>
-                <td className="p-2">{p.enteredBy}</td>
-                <td className="p-2">{p.remark || "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+<table className="w-full table-auto border-collapse">
+  <thead className="bg-gray-100">
+    <tr>
+      <th className="p-2 text-left">Date</th>
+      <th className="p-2 text-left">Amount</th>
+      <th className="p-2 text-left">Mode</th>
+      <th className="p-2 text-left">Entered By</th>
+      <th className="p-2 text-left">Remark</th>
+    </tr>
+  </thead>
+  <tbody>
+    {payments.map((p, idx) => (
+      <tr key={idx} className="border-t">
+        <td className="p-2 text-left">
+          {new Date(p.payment_date).toLocaleDateString()}
+        </td>
+        <td className="p-2 text-left">
+          ₦{Number(p.amount_paid).toLocaleString()}
+        </td>
+        <td className="p-2 text-left">{p.payment_mode}</td>
+        <td className="p-2 text-left">{p.entered_by}</td>
+        <td className="p-2 text-left">{p.remark || "-"}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
       )}
     </div>
   );
