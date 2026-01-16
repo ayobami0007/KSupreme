@@ -7,7 +7,8 @@ import PaymentHistoryTable from "../../components/student/PaymentHistoryTable";
 import AddPaymentModal from "../../components/student/AddPaymentModal";
 import {useParams} from "react-router-dom";
 import { getStudentPaymentInfo , addPayment} from "../../api/payments.api";
-import { getActiveTerm } from "../../api/terms.api";
+import { useTerm } from "../../context/TermContext";
+
 
 const StudentDashboard = () => {
   // const student = {
@@ -20,22 +21,56 @@ const StudentDashboard = () => {
 
   const {id} = useParams();
   const [student, setStudent] = useState(null);
-
+const {activeTerm} = useTerm();
 
   const [payments, setPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   
 
-  useEffect(() =>{
-    const loadStudent = async () =>{
-      const activeTerm = await getActiveTerm();
-      const studentData = await getStudentById (id)
-     const data = await getStudentPaymentInfo(studentData.id, studentData.class_id, activeTerm.id);
-setStudent({ ...data, class_id: studentData.class_id, term_id: activeTerm.id });
-      setPayments(data.payments || [])
-    };
-    loadStudent()
-  }, [id])
+//   useEffect(() => {
+//   const loadStudent = async () => {
+//     console.log("Fetching payment info with:", { id, class_id: studentData?.class_id, term_id: activeTerm.termId });
+
+//     try {
+     
+
+//       // Fetch student payment info directly
+//       const data = await getStudentPaymentInfo(studentData.id, studentData.class_id, activeTerm.termId);
+
+//       // The backend response already includes class_id and term_id
+//       setStudent(data);
+//       setPayments(data.payments || []);
+//     } catch (err) {
+//       console.error("Error loading student:", err);
+//     }
+//   };
+//   if(activeTerm){
+// loadStudent();
+//   }
+
+  
+// }, [id, activeTerm]);
+useEffect(() => {
+  const loadStudent = async () => {
+    try {
+      console.log("Fetching payment info with:", { id, term_id: activeTerm.termId });
+
+      // Fetch student payment info directly
+      const data = await getStudentPaymentInfo(id, activeTerm.termId);
+
+      // Backend response already includes class_id and term_id
+      setStudent(data);
+      setPayments(data.payments || []);
+    } catch (err) {
+      console.error("Error loading student:", err);
+    }
+  };
+
+  if (activeTerm) {
+    loadStudent();
+  }
+}, [id, activeTerm]);
+
 
     if(!student) return <p>Loading....</p>
 

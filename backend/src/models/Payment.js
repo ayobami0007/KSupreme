@@ -190,10 +190,69 @@ class PaymentModel {
     return res.rows;
   }
 
-  static async getPaymentInfo(student_id, class_id, term_id) {
-  // Get student basic info
+  // static async getPaymentInfo(student_id) {
+  //   // Get student basic info
+  //   const studentRes = await db.query(
+  //     `SELECT s.id, s.name, c.name AS class_name
+  //    FROM students s
+  //    JOIN classes c ON s.class_id = c.id
+  //    WHERE s.id = $1`,
+  //     [student_id]
+  //   );
+  //   const student = studentRes.rows[0];
+  //   if (!student) throw new Error("Student not found");
+
+  //   // Get fee amount
+  //   const feeRes = await db.query(
+  //     `SELECT amount FROM school_fees WHERE class_id=$1 AND term_id=$2`,
+  //     [class_id, term_id]
+  //   );
+
+  //   const termRes = await db.query(
+  //     `SELECT id, name FROM terms WHERE is_active = true LIMIT 1`
+  //   );
+  //   const activeTerm = termRes.rows[0];
+  //   if (!activeTerm) throw new Error("No active term set");
+
+  //   const classId = student.class_id;
+  //   const termId = activeTerm.id;
+
+
+  //   const feeRow = feeRes.rows[0];
+  //   if (!feeRow) throw new Error("School fee not set for this class & term");
+  //   const totalFee = Number(feeRow.amount);
+
+  //   // Get total paid
+  //   const totalPaid = await this.getTotalPaid(student_id, class_id, term_id);
+
+  //   // Compute balance & status
+  //   const balance = totalFee - totalPaid;
+  //   let status = "Not Paid";
+  //   if (totalPaid === 0) status = "Not Paid";
+  //   else if (totalPaid < totalFee) status = "Partially Paid";
+  //   else status = "Fully Paid";
+
+  //   // Get payment history
+  //   const payments = await this.getForStudent(student_id, { class_id, term_id });
+
+  //   return {
+  //     id: student.id,
+  //     name: student.name,
+  //     class: student.class_name,
+  //    class_id: classId, 
+  //    term_id: termId,
+  //     total_fee: totalFee,
+  //     total_paid: totalPaid,
+  //     balance,
+  //     status,
+  //     payments
+  //   };
+  // }
+
+static async getPaymentInfo(student_id) {
+  // 1. Get student basic info including class_id
   const studentRes = await db.query(
-    `SELECT s.id, s.name, c.name AS class_name
+    `SELECT s.id, s.name, s.class_id, c.name AS class_name
      FROM students s
      JOIN classes c ON s.class_id = c.id
      WHERE s.id = $1`,
@@ -202,34 +261,44 @@ class PaymentModel {
   const student = studentRes.rows[0];
   if (!student) throw new Error("Student not found");
 
-  // Get fee amount
+  // 2. Get active term
+  const termRes = await db.query(
+    `SELECT id, name FROM terms WHERE is_active = true LIMIT 1`
+  );
+  const activeTerm = termRes.rows[0];
+  if (!activeTerm) throw new Error("No active term set");
+
+  const classId = student.class_id;
+  const termId = activeTerm.id;
+
+  // 3. Get fee amount (now classId and termId are defined)
   const feeRes = await db.query(
     `SELECT amount FROM school_fees WHERE class_id=$1 AND term_id=$2`,
-    [class_id, term_id]
+    [classId, termId]
   );
   const feeRow = feeRes.rows[0];
   if (!feeRow) throw new Error("School fee not set for this class & term");
   const totalFee = Number(feeRow.amount);
 
-  // Get total paid
-  const totalPaid = await this.getTotalPaid(student_id, class_id, term_id);
+  // 4. Get total paid
+  const totalPaid = await this.getTotalPaid(student_id, classId, termId);
 
-  // Compute balance & status
+  // 5. Compute balance & status
   const balance = totalFee - totalPaid;
   let status = "Not Paid";
   if (totalPaid === 0) status = "Not Paid";
   else if (totalPaid < totalFee) status = "Partially Paid";
   else status = "Fully Paid";
 
-  // Get payment history
-  const payments = await this.getForStudent(student_id, { class_id, term_id });
+  // 6. Get payment history
+  const payments = await this.getForStudent(student_id, { class_id: classId, term_id: termId });
 
   return {
     id: student.id,
     name: student.name,
     class: student.class_name,
-    class_id,
-    term_id,
+    class_id: classId,
+    term_id: termId,
     total_fee: totalFee,
     total_paid: totalPaid,
     balance,
@@ -237,7 +306,6 @@ class PaymentModel {
     payments
   };
 }
-
 
 
 }

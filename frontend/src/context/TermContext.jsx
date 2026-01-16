@@ -24,7 +24,9 @@ export const TermProvider = ({ children }) => {
 
         // 3. Store in context
         setActiveTerm({
+          sessionId : session.id,
           session: session.name,
+          termId : term?.id || null,
           term: term?.name || "No active term",
         });
       } catch (err) {
