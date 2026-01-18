@@ -11,13 +11,8 @@ import { useTerm } from "../../context/TermContext";
 
 
 const StudentDashboard = () => {
-  // const student = {
-  //   name: "Esther Akpan",
-  //   id: "IDS 1001",
-  //   class: "Primary 1",
-  //   totalFee: 50000,
-  //   totalPaid: 40000,
-  // };
+
+
 
   const {id} = useParams();
   const [student, setStudent] = useState(null);
@@ -25,6 +20,7 @@ const StudentDashboard = () => {
 
   const [payments, setPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [error, setError] = useState(null)
   
 
 //   useEffect(() => {
@@ -53,12 +49,13 @@ const StudentDashboard = () => {
 useEffect(() => {
   const loadStudent = async () => {
     try {
-      console.log("Fetching payment info with:", { id });
+      // console.log("Fetching payment info  with:", { id });
       const data = await getStudentPaymentInfo(id);
       setStudent(data);
       setPayments(data.payments || []);
     } catch (err) {
       console.error("Error loading student:", err);
+      setError(err.response?.data?.error || "Failed to load student data")
     }
   };
 
@@ -66,7 +63,7 @@ useEffect(() => {
 }, [id]);
 
 
-
+if(error) return <p className="text-red-600">{error}</p>
     if(!student) return <p>Loading....</p>
 
   // Compute totalPaid dynamically

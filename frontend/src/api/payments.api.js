@@ -6,11 +6,7 @@ export const getStudentDashboard = async (studentId) =>
   (await api.get(`/payments/dashboard/${studentId}`)).data;
 
 
-// export const getStudentPaymentInfo = async (id) => {
-//   const res = await api.get(`/payments/students/${id}/payment-info`, {
-//     params : {class_id : classId, term_id : termId}
-//   })
-//   return res.data;
+
 
 export const getStudentPaymentInfo = async (id) => {
   const res = await api.get(`/payments/students/${id}/payment-info`);

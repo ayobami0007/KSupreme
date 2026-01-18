@@ -360,7 +360,7 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
               <th className="p-2 border">Class Name</th>
               <th className="p-2 border">Section</th>
               <th className="p-2 border">Level</th>
-              <th className="p-2 border">Track</th>
+              {/* <th className="p-2 border">Track</th> */}
             </tr>
           </thead>
           <tbody>
@@ -373,10 +373,12 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
             ) : (
               classes.map((c, idx) => (
                 <tr key={idx} className="border-t">
-                  <td className="p-2 border">{c.name}</td>
+                  <td className="p-2 border">{c.name}  {c.track && (
+                    <span className="text-gray-500 italic"> - {c.track}</span>
+                  )}</td>
                   <td className="p-2 border">{c.section}</td>
                   <td className="p-2 border">{c.level}</td>
-                  <td className="p-2 border">{c.track}</td>
+                  {/* <td className="p-2 border">{c.track}</td> */}
                 </tr>
               ))
             )}

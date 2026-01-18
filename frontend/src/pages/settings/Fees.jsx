@@ -229,7 +229,9 @@ export default function FeesPage() {
               <option value="">Select Class</option>
               {classes.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.name}
+                  {c.name} {c.track && (
+  <span className="text-gray-500 italic"> - {c.track}</span>
+)}
                 </option>
               ))}
             </select>

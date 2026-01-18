@@ -256,7 +256,7 @@ export default function StudentsPage() {
               <th className="p-2 border">Class</th>
               <th className="p-2 border">Section</th>
               <th className="p-2 border">Level</th>
-              <th className="p-2 border">Track</th>
+              {/* <th className="p-2 border">Track</th> */}
               <th className="p-2 border">Status</th>
             </tr>
           </thead>
@@ -271,10 +271,12 @@ export default function StudentsPage() {
               students.map((s) => (
                 <tr key={s.id} className="border-t">
                   <td className="p-2 border">{s.name}</td>
-                  <td className="p-2 border">{s.class_name}</td>
+                  <td className="p-2 border">{s.class_name}  {s.track && (
+  <span className="text-gray-500 italic"> - {s.track}</span>
+)}</td>
                   <td className="p-2 border">{s.section}</td>
                   <td className="p-2 border">{s.level}</td>
-                  <td className="p-2 border">{s.track}</td>
+                  {/* <td className="p-2 border">{s.track}</td> */}
                   <td className="p-2 border">{s.status}</td>
                 </tr>
               ))
