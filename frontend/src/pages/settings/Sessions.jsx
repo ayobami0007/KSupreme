@@ -182,7 +182,8 @@ export default function SessionsPage() {
         </label>
 
         <button
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition
+          cursor-pointer"
           onClick={handleSubmit}
         >
           Create Session
@@ -201,14 +202,31 @@ export default function SessionsPage() {
               <span className="text-sm sm:text-base">
                 {s.name} {s.is_active ? "(Active)" : ""}
               </span>
-              {!s.is_active && (
+              {/* {!s.is_active && (
                 <button
                   className="mt-2 sm:mt-0 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm sm:text-base"
                   onClick={() => handleActivate(s.id)}
                 >
                   Activate
                 </button>
-              )}
+              )} */}
+              {!s.is_active && (
+  <button
+    className="mt-2 sm:mt-0 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm sm:text-base 
+    cursor-pointer"
+    onClick={() => {
+      const confirmed = window.confirm(
+        `Are you sure you want to activate session ${s.name}? This will affect current term and payment records.`
+      );
+      if (confirmed) {
+        handleActivate(s.id);
+      }
+    }}
+  >
+    Activate
+  </button>
+)}
+
             </li>
           ))}
         </ul>

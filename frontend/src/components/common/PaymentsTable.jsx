@@ -47,7 +47,12 @@
 // export default PaymentsTable;
 import React from "react";
 
-const PaymentsTable = ({ payments }) => (
+const PaymentsTable = ({ payments }) => {
+
+  const recentPayments = [...payments]
+  .sort((a, b) => new Date(b.date)  - new Date(a.date))
+  .slice(0,8)
+  return (
   <>
     <h2 className="text-xl sm:text-2xl font-semibold mb-4 mt-8">Recent Payments</h2>
 
@@ -65,7 +70,7 @@ const PaymentsTable = ({ payments }) => (
         </thead>
 
         <tbody>
-          {payments.map((p, idx) => (
+          {recentPayments.map((p, idx) => (
             <tr key={idx} className="border-t text-sm sm:text-base">
               <td className="p-2 whitespace-nowrap">{p.name}</td>
               <td className="p-2 whitespace-nowrap">{p.class}</td>
@@ -89,7 +94,8 @@ const PaymentsTable = ({ payments }) => (
       </table>
     </div>
   </>
-);
+  )
+};
 
 export default PaymentsTable;
 

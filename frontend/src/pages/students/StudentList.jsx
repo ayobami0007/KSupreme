@@ -86,9 +86,9 @@ const StudentList = () => {
   const { activeTerm, loading } = useTerm();
 
   const [classes, setClasses] = useState([]);
-  // const [offset, setOffset] = useState(0);
+  // const [offset, setOffset] = useState(0);8
 
-  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedClass, setSelectedClass] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [students, setStudents] = useState([]);
   const [searchInput, setSearchInput] = useState("");
@@ -112,7 +112,8 @@ const StudentList = () => {
         const data = await getClasses();
         setClasses(data);
         //  console.log("Selected class:", selectedClass);
-        if (data.length > 0) setSelectedClass(data[0].id);
+        // if (data.length > 0) setSelectedClass(data[0].id);
+        setSelectedClass("")
       } catch (err) {
         console.error("Failed to load classes:", err);
       }
