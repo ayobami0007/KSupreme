@@ -1,79 +1,4 @@
 
-// const db = require("../config/db");
-
-// class Student {
-//   static async create(data) {
-//     const { name, class_id, status } = data;
-//     try {
-//       const res = await db.query(
-//         "INSERT INTO students (name, class_id, status) VALUES ($1, $2, $3) RETURNING *",
-//         [name, class_id, status || "Active"]
-//       );
-//       return res.rows[0];
-//     } catch (err) {
-//       console.error("Error creating student:", err);
-//       throw new Error(`Failed to create student: ${err.message}`);
-//     }
-//   }
-
-//   static async getAll(filters = {}) {
-//     let sql = `
-//       SELECT 
-//         students.*,
-//         classes.name AS class_name,
-//         classes.section,
-//         classes.level,
-//         classes.track
-//       FROM students
-//       JOIN classes ON students.class_id = classes.id
-//       WHERE students.status = 'Active'
-//     `;
-
-//     const params = [];
-//     let counter = 1; // for $1, $2, $3 placeholders
-
-//     if (filters.class_id) {
-//       sql += ` AND students.class_id = $${counter++}`;
-//       params.push(filters.class_id);
-//     }
-//     if (filters.section) {
-//       sql += ` AND classes.section = $${counter++}`;
-//       params.push(filters.section);
-//     }
-//     if (filters.level) {
-//       sql += ` AND classes.level = $${counter++}`;
-//       params.push(filters.level);
-//     }
-//     if (filters.track) {
-//       sql += ` AND classes.track = $${counter++}`;
-//       params.push(filters.track);
-//     }
-
-//     try {
-//       const res = await db.query(sql, params);
-//       return res.rows;
-//     } catch (err) {
-//       console.error("Error fetching students:", err);
-//       throw new Error(`Failed to fetch students: ${err.message}`);
-//     }
-//   }
-
-//   static async update(id, data) {
-//     const { name, class_id, status } = data;
-//     try {
-//       const res = await db.query(
-//         "UPDATE students SET name=$1, class_id=$2, status=$3 WHERE id=$4 RETURNING *",
-//         [name, class_id, status, id]
-//       );
-//       return res.rows[0];
-//     } catch (err) {
-//       console.error("Error updating student:", err);
-//       throw new Error(`Failed to update student: ${err.message}`);
-//     }
-//   }
-// }
-
-// module.exports = Student;
 const db = require("../config/db");
 
 class Student {
@@ -100,7 +25,7 @@ class Student {
     if (!name) throw new Error("name is required.");
     if (!class_id) throw new Error("class_id is required.");
 
-    // Optional: verify class exists to give a clearer error before FK fails
+    //  verify class exists to give a clearer error before FK fails
     const exists = await this.classExists(class_id);
     if (!exists) throw new Error(`class_id ${class_id} does not exist.`);
 
@@ -206,82 +131,19 @@ class Student {
   }
 
 
-// static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 0 }) {
-//   // 1️⃣ Find the active term
-//   const termRes = await db.query(
-//     "SELECT id FROM terms WHERE is_active = true LIMIT 1"
-//   );
-//   const activeTerm = termRes.rows[0];
-//   if (!activeTerm) {
-//     throw new Error("No active term found.");
-//   }
 
-//   let sql = `
-//     SELECT 
-//       s.id,
-//       s.name,
-//       c.name AS class,
-//       COALESCE(SUM(p.amount_paid), 0) AS total_paid,
-//       COALESCE(sf.amount, 0) AS total_fee,
-//       (COALESCE(sf.amount,0) - COALESCE(SUM(p.amount_paid),0)) AS balance,
-//       CASE 
-//         WHEN sf.amount IS NULL THEN 'No Fee Set'
-//         WHEN COALESCE(SUM(p.amount_paid), 0) >= sf.amount THEN 'Paid'
-//         ELSE 'Owing'
-//       END AS status
-//     FROM students s
-//     JOIN classes c ON s.class_id = c.id
-//     LEFT JOIN payments p 
-//       ON p.student_id = s.id 
-//      AND p.class_id = c.id 
-//      AND p.term_id = $1
-//     LEFT JOIN school_fees sf 
-//       ON sf.class_id = c.id 
-//      AND sf.term_id = $1
-//     WHERE 1=1
-//   `;
 
-//   const params = [activeTerm.id];
-//   let i = 2;
+  static async getWithStatus({ class_id = null, search = "", status = "", limit = 30, offset = 0 }) {
+    // 1️⃣ Find the active term
+    const termRes = await db.query(
+      "SELECT id FROM terms WHERE is_active = true LIMIT 1"
+    );
+    const activeTerm = termRes.rows[0];
+    if (!activeTerm) {
+      throw new Error("No active term found.");
+    }
 
-//   // 🔎 Filter by class if dropdown selects one
-//   if (class_id) {
-//     sql += ` AND s.class_id = $${i++}`;
-//     params.push(parseInt(class_id));
-//   }
-
-//   // 🔎 Search filter
-//   if (search) {
-//     sql += ` AND s.name ILIKE $${i++}`;
-//     params.push(`%${search}%`);
-//   }
-
-//   sql += ` GROUP BY s.id, s.name, c.name, sf.amount 
-//            ORDER BY s.name ASC 
-//            LIMIT $${i} OFFSET $${i+1}`;
-//   params.push(limit);
-//   params.push(offset);
-
-//   try {
-//     const res = await db.query(sql, params);
-//     return res.rows;
-//   } catch (err) {
-//     console.error("Error fetching students with status:", err);
-//     throw new Error(`Failed to fetch students with status: ${err.message}`);
-//   }
-// }
-
-static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 0 }) {
-  // 1️⃣ Find the active term
-  const termRes = await db.query(
-    "SELECT id FROM terms WHERE is_active = true LIMIT 1"
-  );
-  const activeTerm = termRes.rows[0];
-  if (!activeTerm) {
-    throw new Error("No active term found.");
-  }
-
-  let sql = `
+    let sql = `
     SELECT 
       s.id,
       s.name,
@@ -306,52 +168,89 @@ static async getWithStatus({ class_id = null, search = "", limit = 30, offset = 
     WHERE 1=1
   `;
 
-  const params = [activeTerm.id];
-  let i = 2;
+    const params = [activeTerm.id];
+    let i = 2;
 
-  if (class_id) {
-    sql += ` AND s.class_id = $${i++}`;
-    params.push(parseInt(class_id));
-  }
+    if (class_id) {
+      sql += ` AND s.class_id = $${i++}`;
+      params.push(parseInt(class_id));
+    }
 
-  if (search) {
-    sql += ` AND s.name ILIKE $${i++}`;
-    params.push(`%${search}%`);
-  }
+    if (search) {
+      sql += ` AND s.name ILIKE $${i++}`;
+      params.push(`%${search}%`);
+    }
 
-  sql += ` GROUP BY s.id, s.name, c.name, sf.amount 
+    sql += ` GROUP BY s.id, s.name, c.name, sf.amount `
+
+    if (status) {
+      sql += ` HAVING
+  CASE
+  WHEN sf.amount IS NULL THEN 'No Fee Set'
+  WHEN COALESCE(SUM(p.amount_paid), 0) >= sf.amount THEN 'Paid'
+  ELSE 'Owing'
+  END = $${i++}`
+
+      params.push(status)
+    }
+
+    sql += `
+ 
            ORDER BY s.name ASC 
-           LIMIT $${i} OFFSET $${i+1}`;
-  params.push(limit);
-  params.push(offset);
+           LIMIT $${i} OFFSET $${i + 1}`;
+    params.push(limit);
+    params.push(offset);
 
-  // 🔎 Count query for total rows (without limit/offset)
-  let countSql = `
-    SELECT COUNT(*) AS total
-    FROM students s
-    WHERE 1=1
-  `;
-  const countParams = [];
-  if (class_id) {
-    countSql += ` AND s.class_id = $${countParams.length + 1}`;
-    countParams.push(parseInt(class_id));
-  }
-  if (search) {
-    countSql += ` AND s.name ILIKE $${countParams.length + 1}`;
-    countParams.push(`%${search}%`);
-  }
+    // 🔎 Count query for total rows (without limit/offset)
+    let countSql = `
+   SELECT COUNT(*) AS total
+    FROM  ( 
+ SELECT s.id 
+   FROM students s
+    JOIN classes c ON s.class_id = c.id
+     LEFT JOIN payments p 
+     ON p.student_id = s.id 
+     AND p.class_id = c.id 
+     AND p.term_id = $1 
+     LEFT JOIN school_fees sf 
+     ON sf.class_id = c.id 
+     AND sf.term_id = $1 
+     WHERE 1=1 `;
 
-  try {
-    const res = await db.query(sql, params);
-    const countRes = await db.query(countSql, countParams);
-    const totalCount = parseInt(countRes.rows[0].total, 10);
+    const countParams = [activeTerm.id];
+    let j = 2;
 
-    return { rows: res.rows, totalCount };
-  } catch (err) {
-    console.error("Error fetching students with status:", err);
-    throw new Error(`Failed to fetch students with status: ${err.message}`);
+    if (class_id) {
+      countSql += ` AND s.class_id = $${j++}`;
+      countParams.push(parseInt(class_id));
+    }
+
+    if (search) {
+      countSql += ` AND s.name ILIKE $${j++}`;
+      countParams.push(`%${search}%`);
+    }
+
+    countSql += ` GROUP BY s.id, c.name, sf.amount`;
+
+    if (status) {
+      countSql += ` HAVING CASE WHEN sf.amount IS NULL THEN 'No Fee Set'
+     WHEN COALESCE(SUM(p.amount_paid), 0) >= sf.amount 
+     THEN 'Paid' ELSE 'Owing' END = $${j++}`;
+      countParams.push(status);
+    }
+    countSql += ` ) subquery`;
+
+    try {
+      const res = await db.query(sql, params);
+      const countRes = await db.query(countSql, countParams);
+      const totalCount = parseInt(countRes.rows[0].total, 10);
+
+      return { rows: res.rows, totalCount };
+    } catch (err) {
+      console.error("Error fetching students with status:", err);
+      throw new Error(`Failed to fetch students with status: ${err.message}`);
+    }
   }
-}
 
 
 }

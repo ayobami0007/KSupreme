@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import SummaryCards from "../components/common/SummaryCards";
 import PaymentsTable from "../components/common/PaymentsTable";
 import { useTerm } from "../context/TermContext";
 import { getDashboardSummary , getRecentPayments} from "../api/dashboard.api";
-
+import Loader from "../components/common/Loader";
+// import FullPageLoader from "../components/common/fullPageLoader";
 const Dashboard = () => {
   const { activeTerm, loading } = useTerm();
   const [stats, setStats] = useState([]);
@@ -43,7 +43,7 @@ status:p.status
     loadData();
   }, []);
 
-  if (loading) return <p>Loading....</p>;
+  if (loading) return <Loader/>;
   if (!activeTerm) return <p>No active term found</p>;
 
   return (

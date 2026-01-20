@@ -1,6 +1,7 @@
 
 
 const PaymentHistoryTable = ({ payments, onAddPayment }) => {
+
   return (
     <div className="bg-white shadow rounded p-4 mt-6">
       <div className="flex justify-between items-center mb-4">
@@ -26,6 +27,7 @@ const PaymentHistoryTable = ({ payments, onAddPayment }) => {
       <th className="p-2 text-left">Mode</th>
       <th className="p-2 text-left">Entered By</th>
       <th className="p-2 text-left">Remark</th>
+      {/* <th className="p-2 text-left">Status</th> */}
     </tr>
   </thead>
   <tbody>
@@ -40,6 +42,14 @@ const PaymentHistoryTable = ({ payments, onAddPayment }) => {
         <td className="p-2 text-left">{p.payment_mode}</td>
         <td className="p-2 text-left">{p.entered_by}</td>
         <td className="p-2 text-left">{p.remark || "-"}</td>
+        {/* <td className="p-2 text-left"> 
+          <button 
+           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition cursor-pointer"
+          //  onClick={() => }
+           >
+            Void & Correct
+          </button>
+        </td> */}
       </tr>
     ))}
   </tbody>

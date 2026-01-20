@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (data) => {
     const res = await loginApi(data);
 
-    // ✅ ALWAYS stringify
+ // ALWAYS stringify
     localStorage.setItem("token", res.token);
     localStorage.setItem("user", JSON.stringify(res.user));
 

@@ -58,10 +58,10 @@ static validateRules({ name, section, level, track }) {
   static mapDbError(err, context = "class") {
     // Unique violation
     if (err && err.code === "23505") {
-      // You can inspect err.constraint to be more specific
+     
       return new Error(`A ${context} with the same unique fields already exists.`);
     }
-    // Check constraint violation
+ 
     if (err && err.code === "23514") {
       return new Error("Invalid class data: one or more fields violate constraints.");
     }
@@ -72,7 +72,7 @@ static validateRules({ name, section, level, track }) {
   static async create(data) {
     const { name, section, level, track } = data;
 
-    // Validate business rules before DB call
+    // Validate  rules before DB call
     this.validateRules({ name, section, level, track });
 
     try {

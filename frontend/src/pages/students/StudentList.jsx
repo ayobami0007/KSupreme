@@ -1,76 +1,4 @@
-// import { useEffect, useState } from "react";
-// import PaymentFilters from "../../components/common/PaymentFilters";
-// import StudentsTable from "../../components/common/StudentsTable";
-// import RecentPaymentsTable from "../../components/common/RecentsPay";
-// import { useTerm } from "../../context/TermContext";
-// import { useParams } from "react-router-dom";
-// import { getClasses } from "../../api/classes.api";
 
-
-// const StudentList = () => {
-
-// const { id } = useParams();
-// const { activeTerm, loading } = useTerm();
-
-//   const [selectedClass, setSelectedClass] = useState("Primary 1");
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [classes, setClasses] = useState([])
-//   const [students, setStudents] = useState([]);
-
-//   useEffect(() =>{
-//     const loadClasses = async () => {
-//       try{
-//         const data = await getClasses();
-//         setClasses(data);
-//         if(data.length > 0) setSelectedClass(data[0].name)
-//       } catch (err){
-//     console.error("failed to load classes", err)
-//   }
-//     } loadClasses();    
-//   }, [])
-
-//   // const students = [
-//   //   { id: "IDS 1001", name: "Esther Akpan", class: "Primary 1", status: "Paid" },
-//   //   { id: "IDS 1002", name: "Emeka Eze", class: "Primary 1", status: "Owing" },
-//   //   { id: "IDS 1003", name: "Amina Bello", class: "Primary 1", status: "Owing" },
-//   //   { id: "IDS 1004", name: "Ibrahim Yusuf", class: "Primary 1", status: "Owing" },
-//   // ];
-
-//   const filteredStudents = students.filter(
-//     (s) =>
-//       s.class === selectedClass &&
-//       (s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-//         s.id.toLowerCase().includes(searchQuery.toLowerCase()))
-//   );
-
-//   const recentPayments = students.filter((s) => s.status === "Paid");
-
-
-//   if (loading) return <p>Loading....</p>
-//   if(!activeTerm) return <p>No active term found</p>
-
-//   return (
-//     <div className="p-6 bg-gray-50 min-h-screen">
-//       <h1 className="text-2xl font-bold">Student Payment Management</h1>
-//        <p className="mb-4">
-//         <strong>Active Term:</strong> {activeTerm.session} – {activeTerm.term}
-//       </p>
-//       <PaymentFilters
-//         selectedClass={selectedClass}
-//         setSelectedClass={setSelectedClass}
-//         searchQuery={searchQuery}
-//         setSearchQuery={setSearchQuery}
-//       />
-
-//       <StudentsTable students={filteredStudents} />
-
-//       <RecentPaymentsTable payments={recentPayments} />
-
-//     </div>
-//   );
-// };
-
-// export default StudentList;
 
 
 import { useState, useEffect } from "react";
@@ -80,6 +8,7 @@ import { useTerm } from "../../context/TermContext";
 import { useParams } from "react-router-dom";
 import { getClasses } from "../../api/classes.api";
 import { getStudentsByClass } from "../../api/students.api";
+import Loader from "../../components/common/Loader";
 
 const StudentList = () => {
   const { id } = useParams();
@@ -94,6 +23,8 @@ const StudentList = () => {
   const [searchInput, setSearchInput] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1)
+  const [selectedStatus, setSelectedStatus] = useState("")
+  // const [loading, setLoading] = useState(false)
   const limit = 10;
 
 
@@ -133,7 +64,7 @@ const StudentList = () => {
       try {
         const offset = (currentPage - 1) * limit;
 
-        const data = await getStudentsByClass(selectedClass, searchQuery, limit, offset);
+        const data = await getStudentsByClass(selectedClass, searchQuery,selectedStatus, limit, offset);
         setStudents(data.rows);
        setTotalPages(Math.ceil(data.totalCount / limit))
      } catch (err) {
@@ -143,7 +74,7 @@ const StudentList = () => {
     loadStudents();
   }, [selectedClass, searchQuery, activeTerm, currentPage]);
 
-  if (loading) return <p>Loading....</p>;
+  if (loading) return <p><Loader/></p>;
   if (!activeTerm) return <p>No active term found</p>;
 
   return (
@@ -159,12 +90,33 @@ const StudentList = () => {
         searchInput={searchInput}
         setSearchInput={setSearchInput}
         classes={classes}
+        selectedStatus ={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
       />
 
-      <StudentsTable students={students}
-      currentPage ={currentPage}
-      totalPages ={totalPages}
-      onPageChange={setCurrentPage}/>
+<div className="bg-white rounded shadow p-4 overflow-x-auto">
+  {loading ? (
+  
+    <div className="flex justify-center py-10">
+      <Loader />
+    </div>
+  ) : students.length === 0 ? (
+
+    <div className="flex justify-center py-10 text-gray-600">
+      No students found
+    </div>
+  ) : (
+    // Show table when data exists
+    <StudentsTable
+      students={students}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={setCurrentPage}
+    />
+  )}
+</div>
+
+
    
     </div>
   );

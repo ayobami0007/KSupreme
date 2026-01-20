@@ -8,6 +8,7 @@ import AddPaymentModal from "../../components/student/AddPaymentModal";
 import {useParams} from "react-router-dom";
 import { getStudentPaymentInfo , addPayment} from "../../api/payments.api";
 import { useTerm } from "../../context/TermContext";
+import Loader from "../../components/common/Loader";
 
 
 const StudentDashboard = () => {
@@ -23,29 +24,8 @@ const StudentDashboard = () => {
   const [error, setError] = useState(null)
   
 
-//   useEffect(() => {
-//   const loadStudent = async () => {
-//     console.log("Fetching payment info with:", { id, class_id: studentData?.class_id, term_id: activeTerm.termId });
-
-//     try {
-     
-
-//       // Fetch student payment info directly
-//       const data = await getStudentPaymentInfo(studentData.id, studentData.class_id, activeTerm.termId);
-
-//       // The backend response already includes class_id and term_id
-//       setStudent(data);
-//       setPayments(data.payments || []);
-//     } catch (err) {
-//       console.error("Error loading student:", err);
-//     }
-//   };
-//   if(activeTerm){
-// loadStudent();
-//   }
 
   
-// }, [id, activeTerm]);
 useEffect(() => {
   const loadStudent = async () => {
     try {
@@ -64,9 +44,9 @@ useEffect(() => {
 
 
 if(error) return <p className="text-red-600">{error}</p>
-    if(!student) return <p>Loading....</p>
+    if(!student) return <Loader/>
 
-  // Compute totalPaid dynamically
+  // Compute totalPaid 
   const totalPaid = student.total_paid 
   const balance = student.balance;
 
@@ -98,22 +78,7 @@ if(error) return <p className="text-red-600">{error}</p>
     }
   }
 
-  // const handleAddPayment = async (newPayment) => {
-  //   const paymentWithDate = {
-  //     ...newPayment,
-  //     payment_date: new Date().toISOString(),
-  //     enteredBy: "Admin1",
-  //   };
-  //   setPayments([...payments, paymentWithDate]);
-
-  //   setStudent({
-  //     ...student,
-  //     total_paid: student.total_paid + Number(newPayment.amount_paid),
-  //     balance: student.total_fee - (student.total_paid + Number(newPayment.amount_paid)),
-  //   })
-
-  //   setShowAddModal(false);
-  // };
+  
 
 
 

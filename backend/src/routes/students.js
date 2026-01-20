@@ -61,11 +61,12 @@ router.put("/:id", async (req, res) => {
 
 router.get("/with-status", async (req, res) => {
   try {
-    const { class_id, search, limit, offset } = req.query;
+    const { class_id, search, status, limit, offset } = req.query;
 
     const students = await Student.getWithStatus({
       class_id: class_id ? parseInt(class_id) : null,
       search: search || "",
+      status: status || "", 
       limit: limit ? parseInt(limit) : 30,
       offset: offset ? parseInt(offset) : 0
     });
