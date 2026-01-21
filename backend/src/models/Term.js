@@ -9,7 +9,7 @@ class Term {
     try {
       const res = await db.query(
         "INSERT INTO terms (name, session_id, is_active) VALUES ($1, $2, $3) RETURNING *",
-        [name, session_id, is_active]
+        [name, session_id, Boolean(is_active)]
       );
       return res.rows[0];
     } catch (err) {

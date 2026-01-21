@@ -45,7 +45,7 @@ const StudentsTable = ({ students, currentPage, totalPages, onPageChange }) => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed border">
+        <table className="w-full table-auto border">
           <thead className="bg-gray-100 text-left">
             <tr>
               <th className="p-3">Student ID</th>
@@ -76,7 +76,9 @@ const StudentsTable = ({ students, currentPage, totalPages, onPageChange }) => {
                 </td>
                 <td className="p-3">
                   <Link to={`/students/${s.id}/payment`}>
-                    <button className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer">
+                    <button
+                    aria-label={`Manage payment for ${s.name}`}
+                    className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer">
                       {s.status === "Paid" ? "View" : "Pay"}
                     </button>
                   </Link>

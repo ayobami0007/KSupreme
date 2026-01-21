@@ -5,10 +5,12 @@ import FeeSummaryCards from "../../components/student/FeeSummaryCards";
 import PaymentProgress from "../../components/student/PaymentProgress";
 import PaymentHistoryTable from "../../components/student/PaymentHistoryTable";
 import AddPaymentModal from "../../components/student/AddPaymentModal";
+
 import {useParams} from "react-router-dom";
 import { getStudentPaymentInfo , addPayment} from "../../api/payments.api";
 import { useTerm } from "../../context/TermContext";
 import Loader from "../../components/common/Loader";
+import ReceiptModal from "./ReceiptModal";
 
 
 const StudentDashboard = () => {
@@ -23,7 +25,8 @@ const StudentDashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [error, setError] = useState(null)
   
-
+const [showReceipt, setShowReceipt] = useState(false);
+ const [selectedPayment, setSelectedPayment] = useState(null);
 
   
 useEffect(() => {
@@ -79,17 +82,21 @@ if(error) return <p className="text-red-600">{error}</p>
   }
 
   
-
+const handlePrintReceipt = (payment) =>{
+  setSelectedPayment(payment)
+  setShowReceipt(true)
+}
 
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen ">
       <h1 className="text-2xl font-bold mb-6">Student Payment Dashboard</h1>
 
     <StudentInfoCard student={{ ...student, total_paid: totalPaid, balance }} />
       <FeeSummaryCards student={{ ...student, total_paid: totalPaid, balance }} />
       <PaymentProgress totalPaid={totalPaid} totalFee={student.total_fee} />
-      <PaymentHistoryTable payments={payments} onAddPayment={() => setShowAddModal(true)} />
+      <PaymentHistoryTable payments={payments} onAddPayment={() => setShowAddModal(true)}
+      onPrintReceipt={handlePrintReceipt} />
  
 
 
@@ -98,6 +105,12 @@ if(error) return <p className="text-red-600">{error}</p>
         onClose={() => setShowAddModal(false)}
         onSave={handleAddPayment}
         balance={balance}
+      />
+      <ReceiptModal
+      isOpen={showReceipt}
+      onClose={() => setShowReceipt(false)}
+      payment={selectedPayment}
+      student={student}
       />
     </div>
   );

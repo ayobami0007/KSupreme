@@ -43,11 +43,11 @@ export default function TermsPage() {
     try {
       const res = await createTerm({
         name: termName,
-        session_id: sessionId,
+        session_id: Number(sessionId),
         is_active: isActive ? 1 : 0,
       });
       if (isActive) {
-        await activateTerm(res.id, sessionId);
+        await activateTerm(res.id );
       }
       await loadTerms();
       setTermName("");

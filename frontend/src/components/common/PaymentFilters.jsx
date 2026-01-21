@@ -4,6 +4,8 @@ const PaymentFilters = ({
   setSelectedClass,
   searchInput,
  setSearchInput,
+ selectedStatus,
+ setSelectedStatus,
   classes = []
 }) => {
   return (
@@ -20,12 +22,22 @@ const PaymentFilters = ({
 
         {classes.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.name}  {c.track && (
-                    <span className="text-gray-500 italic"> - {c.track}</span>
-                  )}
+           {c.name}{c.track ? ` - ${c.track}` : ""}
           </option>
         ))}
       </select>
+
+      <select value={selectedStatus ?? ""} 
+      onChange={(e) => 
+        setSelectedStatus(e.target.value ? e.target.value : "")}
+       className="border rounded px-3 py-2">
+
+         <option value="">All Statuses</option>
+        <option value="Paid">Paid</option>
+        {/* <option value="Partially Paid">Partially Paid</option> */}
+        <option value="Owing">Owing</option>
+        <option value="No Fee Set">No Fee Set</option>
+       </select>
 
       <input
         type="text"

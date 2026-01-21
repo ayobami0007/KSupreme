@@ -7,7 +7,7 @@ import StudentsTable from "../../components/common/StudentsTable";
 import { useTerm } from "../../context/TermContext";
 import { useParams } from "react-router-dom";
 import { getClasses } from "../../api/classes.api";
-import { getStudentsByClass } from "../../api/students.api";
+import { getStudentsWithStatus } from "../../api/students.api";
 import Loader from "../../components/common/Loader";
 
 const StudentList = () => {
@@ -64,7 +64,7 @@ const StudentList = () => {
       try {
         const offset = (currentPage - 1) * limit;
 
-        const data = await getStudentsByClass(selectedClass, searchQuery,selectedStatus, limit, offset);
+        const data = await getStudentsWithStatus(selectedClass, searchQuery,selectedStatus, limit, offset);
         setStudents(data.rows);
        setTotalPages(Math.ceil(data.totalCount / limit))
      } catch (err) {
@@ -72,7 +72,7 @@ const StudentList = () => {
       }
     };
     loadStudents();
-  }, [selectedClass, searchQuery, activeTerm, currentPage]);
+  }, [selectedClass, searchQuery, selectedStatus, activeTerm, currentPage]);
 
   if (loading) return <p><Loader/></p>;
   if (!activeTerm) return <p>No active term found</p>;
