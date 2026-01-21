@@ -151,6 +151,7 @@
 import { useState, useEffect } from "react";
 import { getStudents, addStudent } from "../../api/students.api";
 import { getClasses } from "../../api/classes.api";
+import Loader from "../../components/common/Loader";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -161,6 +162,7 @@ export default function StudentsPage() {
   const [selectedClass, setSelectedClass] = useState("");
   const [status, setStatus] = useState("Active");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false)
 
   // Filter state
   const [filterClass, setFilterClass] = useState("");
@@ -184,7 +186,7 @@ export default function StudentsPage() {
   const handleSubmit = async () => {
     if (!name) return setError("Name is required");
     if (!selectedClass) return setError("Class is required");
-
+setLoading(true)
     try {
       await addStudent({
         name,
@@ -196,8 +198,11 @@ export default function StudentsPage() {
       setSelectedClass("");
       setStatus("Active");
       setError("");
+      alert("Student added successfully ");
     } catch (err) {
       setError(err.response?.data?.error || err.message);
+    }finally { 
+      setLoading(false); 
     }
   };
 
@@ -257,10 +262,11 @@ export default function StudentsPage() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <button
-            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition cursor-pointer"
             onClick={handleSubmit}
-          >
-            Add Student
+          disabled={loading} >
+      {loading ? <Loader /> : "Add Student"}
+           
           </button>
         </div>
       </div>

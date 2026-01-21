@@ -185,6 +185,7 @@
 // }
 import { useState, useEffect } from "react";
 import { getClasses, createClass } from "../../api/classes.api";
+import Loader from "../../components/common/Loader";
 
 export default function ClassManagement({ activeSession = "2024/2025" }) {
   const [className, setClassName] = useState("");
@@ -193,6 +194,8 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
   const [track, setTrack] = useState("");
   const [error, setError] = useState("");
   const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(false);
+
 
   // Filter state
   const [filterSection, setFilterSection] = useState("");
@@ -222,10 +225,11 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
       setError("Level is required for Secondary");
       return;
     }
-    if (section === "Secondary" && !track) {
-      setError("Track is required for Secondary");
+    if (section === level === "Senior" && !track) {
+      setError("Track is required for Senior Secondary");
       return;
     }
+    setLoading(true)
 
     try {
       await createClass({
@@ -245,6 +249,7 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
       setError("");
     } catch (err) {
       setError(err.response?.data?.error || err.message);
+    }finally { setLoading(false);
     }
   };
 
@@ -299,9 +304,8 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
                   required
                 >
                   <option value="">Select Level</option>
-                  <option>Basic</option>
-                  <option>Intermediate</option>
-                  <option>Advanced</option>
+                  <option>Junior</option>
+                  <option>Senior</option>
                 </select>
               </div>
 
@@ -329,12 +333,21 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
             <span className="font-semibold">{activeSession}</span>
           </p>
 
-          <button
-            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            onClick={handleSubmit}
-          >
-            Add Class
-          </button>
+         <button
+  className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2"
+  onClick={handleSubmit}
+  disabled={loading}
+>
+  {loading ? (
+    <>
+      <Loader />
+      <span>Adding...</span>
+    </>
+  ) : (
+    "Add Class"
+  )}
+</button>
+
         </div>
       </div>
 
