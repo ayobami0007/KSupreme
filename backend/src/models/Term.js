@@ -5,21 +5,43 @@ const db = require("../config/db");
 
 class Term {
   // Create a new term
+  // static async create(name, session_id, is_active = false) {
+  //   try {
+  //     const res = await db.query(
+  //       "INSERT INTO terms (name, session_id, is_active) VALUES ($1, $2, $3) RETURNING *",
+  //       [name, session_id, Boolean(is_active)]
+  //     );
+  //     return res.rows[0];
+  //   } catch (err) {
+  //     if (err.code === "23505") { 
+  //       throw new Error(`This session already has a ${name}.`);
+  //     }
+  //     console.error("Error creating term:", err);
+  //      throw new Error(`Failed to create term: ${err.message}`);
+  //   }
+  // }
+
   static async create(name, session_id, is_active = false) {
-    try {
-      const res = await db.query(
-        "INSERT INTO terms (name, session_id, is_active) VALUES ($1, $2, $3) RETURNING *",
-        [name, session_id, Boolean(is_active)]
-      );
-      return res.rows[0];
-    } catch (err) {
-      if (err.code === "23505") { 
-        throw new Error(`This session already has a ${name}.`);
-      }
-      console.error("Error creating term:", err);
-       throw new Error(`Failed to create term: ${err.message}`);
+  try {
+    // If creating an active term, deactivate all others in the same session first
+    if (is_active) {
+      await db.query("UPDATE terms SET is_active = false WHERE session_id = $1", [session_id]);
     }
+
+    const res = await db.query(
+      "INSERT INTO terms (name, session_id, is_active) VALUES ($1, $2, $3) RETURNING *",
+      [name, session_id, Boolean(is_active)]
+    );
+
+    return res.rows[0];
+  } catch (err) {
+    if (err.code === "23505") {
+      throw new Error(`This session already has a ${name}.`);
+    }
+    console.error("Error creating term:", err);
+    throw new Error(`Failed to create term: ${err.message}`);
   }
+}
 
   // Get all terms for a session
 

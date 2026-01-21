@@ -5,26 +5,42 @@ const router = express.Router();
 const Term = require("../models/Term");
 
 // Create a new term
-router.post("/", async (req, res) => {
- // in router.post("/")
-const { name, session_id, is_active } = req.body;
-if (!name || !session_id) {
-  return res.status(400).json({ error: "name and session_id are required" });
-}
+// router.post("/", async (req, res) => {
+//  // in router.post("/")
+// const { name, session_id, is_active } = req.body;
+// if (!name || !session_id) {
+//   return res.status(400).json({ error: "name and session_id are required" });
+// }
 
-try {
-  // if is_active is true, deactivate all first
-  if (is_active) {
-    await db.query("UPDATE terms SET is_active = false WHERE session_id = $1", [session_id]);
+// try {
+//   // if is_active is true, deactivate all first
+//   if (is_active) {
+//     await db.query("UPDATE terms SET is_active = false WHERE session_id = $1", [session_id]);
+//   }
+
+//   const term = await Term.create(name, parseInt(session_id, 10), is_active);
+//   res.status(201).json({ message: "Term created", term });
+// } catch (err) {
+//   res.status(400).json({ error: err.message });
+// }
+
+// });
+
+// Create a new term
+router.post("/", async (req, res) => {
+  const { name, session_id, is_active } = req.body;
+  if (!name || !session_id) {
+    return res.status(400).json({ error: "name and session_id are required" });
   }
 
-  const term = await Term.create(name, parseInt(session_id, 10), is_active);
-  res.status(201).json({ message: "Term created", term });
-} catch (err) {
-  res.status(400).json({ error: err.message });
-}
-
+  try {
+    const term = await Term.create(name, parseInt(session_id, 10), is_active);
+    res.status(201).json({ message: "Term created", term });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
+
 
 // Get all terms
 router.get("/", async (req, res) => {
