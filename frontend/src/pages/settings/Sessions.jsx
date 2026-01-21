@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { createSession, getSessions, activateSession } from "../../api/sessions.api";
+import Loader from "../../components/common/Loader";
 
 export default function SessionsPage() {
   const [sessionName, setSessionName] = useState("");
   const [isActive, setIsActive] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sessions, setSessions] = useState([]);
 
@@ -24,6 +26,7 @@ export default function SessionsPage() {
   const handleSubmit = async () => {
     if (!sessionName.trim()) {
       setError("Session name is required");
+      setLoading(true)
       return;
     }
     try {
@@ -37,6 +40,8 @@ export default function SessionsPage() {
       setError("");
     } catch (err) {
       setError(err.response?.data?.error || err.message);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -75,11 +80,18 @@ export default function SessionsPage() {
         </label>
 
         <button
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition
-          cursor-pointer"
+          className=" cursor-pointer w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2"
           onClick={handleSubmit}
+          disabled={loading}
         >
-          Create Session
+          {loading ? (
+            <>
+              <Loader />
+              <span>Creating....</span>
+            </>
+          ) : (
+            "Create Session"
+          )}
         </button>
       </div>
 
@@ -95,23 +107,23 @@ export default function SessionsPage() {
               <span className="text-sm sm:text-base">
                 {s.name} {s.is_active ? "(Active)" : ""}
               </span>
-             
+
               {!s.is_active && (
-  <button
-    className="mt-2 sm:mt-0 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm sm:text-base 
+                <button
+                  className="mt-2 sm:mt-0 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm sm:text-base 
     cursor-pointer"
-    onClick={() => {
-      const confirmed = window.confirm(
-        `Are you sure you want to activate session ${s.name}? This will affect current term and payment records.`
-      );
-      if (confirmed) {
-        handleActivate(s.id);
-      }
-    }}
-  >
-    Activate
-  </button>
-)}
+                  onClick={() => {
+                    const confirmed = window.confirm(
+                      `Are you sure you want to activate session ${s.name}? This will affect current term and payment records.`
+                    );
+                    if (confirmed) {
+                      handleActivate(s.id);
+                    }
+                  }}
+                >
+                  Activate
+                </button>
+              )}
 
             </li>
           ))}
