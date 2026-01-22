@@ -3,8 +3,8 @@ const router = express.Router();
 
 // Hardcoded bursar credentials
 const bursarUser = {
-  username: "bursar1",
-  password: "1234",
+  username: "Administrator",
+  password: "Admin524#",
   name: "Default Bursar"
 };
 
