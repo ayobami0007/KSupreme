@@ -4,7 +4,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import DashboardLayout from "../components/layouts/DashboardLayout"; 
-import Dashboard from '../pages/dashboard'
+import Dashboard from '../pages/dashboard/dashboard'
 import Students from "../pages/students/StudentList";
 import Payments from "../pages/payments/PaymentDashboard";
 import Reports from "../pages/Reports";
@@ -13,7 +13,7 @@ import SessionsPage from "../pages/settings/Sessions";
 import TermsPage from "../pages/settings/Terms";
 import ClassManagement from "../pages/settings/Classes";
 import FeesPage from "../pages/settings/Fees";
-import AddStudent from "../pages/students/AddStudent" 
+import AddStudent from "../pages/settings/AddStudent" 
 import ProtectedRoute from "./ProtectedRoute";
 
 

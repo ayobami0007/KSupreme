@@ -1,7 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { getClasses, createClass } from "../../api/classes.api";
-import Loader from "../../components/common/Loader";
+
+// Reusable components
+import Input from "../../components/common/Input";
+import Dropdown from "../../components/common/DropDown";
+import Button from "../../components/common/Button";
+import Table from "../../components/common/Table";
 
 export default function ClassManagement({ activeSession = "2024/2025" }) {
   const [className, setClassName] = useState("");
@@ -11,7 +16,6 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
   const [error, setError] = useState("");
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
-
 
   // Filter state
   const [filterSection, setFilterSection] = useState("");
@@ -29,30 +33,19 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
   }, []);
 
   const handleSubmit = async () => {
-    if (!className.trim()) {
-      setError("Class name is required");
-      return;
-    }
-    if (!section) {
-      setError("Section is required");
-      return;
-    }
-    if (section === "Secondary" && !level) {
-      setError("Level is required for Secondary");
-      return;
-    }
-    if (section === "Secondary" && level === "Senior" && !track) {
-      setError("Track is required for Senior Secondary");
-      return;
-    }
-    setLoading(true)
+    if (!className.trim()) return setError("Class name is required");
+    if (!section) return setError("Section is required");
+    if (section === "Secondary" && !level) return setError("Level is required for Secondary");
+    if (section === "Secondary" && level === "Senior" && !track)
+      return setError("Track is required for Senior Secondary");
 
+    setLoading(true);
     try {
       await createClass({
         name: className,
         section,
-      level: section === "Primary" ? null : level,
-       track: section === "Primary" ? null : track,
+        level: section === "Primary" ? null : level,
+        track: section === "Primary" ? null : track,
         session: activeSession,
       });
       const updated = await getClasses();
@@ -65,15 +58,10 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
       setError("");
     } catch (err) {
       setError(err.response?.data?.error || err.message);
-    }finally { setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
-console.log({
-  name: className,
-  section,
-  level: section === "Primary" ? null : level,
-  track: section === "Primary" ? null : track,
-});
 
   // Apply filter
   const filteredClasses = classes.filter((c) => {
@@ -89,87 +77,64 @@ console.log({
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Add New Class</h2>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Class Name</label>
-            <input
-              type="text"
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={className}
-              onChange={(e) => setClassName(e.target.value)}
-              placeholder="Enter class name"
-              required
-            />
-          </div>
+          <Input
+            label="Class Name"
+            type="text"
+            value={className}
+            onChange={(e) => setClassName(e.target.value)}
+            placeholder="Enter class name"
+            required
+          />
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Section</label>
-            <select
-              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={section}
-              onChange={(e) => setSection(e.target.value)}
-              required
-            >
-              <option value="">Select Section</option>
-              <option value="Primary">Primary</option>
-              <option value="Secondary">Secondary</option>
-            </select>
-          </div>
+          <Dropdown
+            label="Section"
+            value={section}
+            onChange={(e) => setSection(e.target.value)}
+            options={[
+              { value: "Primary", label: "Primary" },
+              { value: "Secondary", label: "Secondary" },
+            ]}
+            required
+          />
 
           {section === "Secondary" && (
             <>
-              <div>
-                <label className="block text-sm font-medium mb-1">Level</label>
-                <select
-                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  value={level}
-                  onChange={(e) => setLevel(e.target.value)}
-                  required
-                >
-                  <option value="">Select Level</option>
-                  <option>Junior</option>
-                  <option>Senior</option>
-                </select>
-              </div>
+              <Dropdown
+                label="Level"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+                options={[
+                  { value: "Junior", label: "Junior" },
+                  { value: "Senior", label: "Senior" },
+                ]}
+                required
+              />
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Track</label>
-                <select
-                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              {level === "Senior" && (
+                <Dropdown
+                  label="Track"
                   value={track}
                   onChange={(e) => setTrack(e.target.value)}
+                  options={[
+                    { value: "Science", label: "Science" },
+                    { value: "Arts", label: "Arts" },
+                    { value: "Commercial", label: "Commercial" },
+                  ]}
                   required
-                >
-                  <option value="">Select Track</option>
-                  <option>Science</option>
-                  <option>Arts</option>
-                  <option>Commercial</option>
-                </select>
-              </div>
+                />
+              )}
             </>
           )}
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <p className="text-sm text-gray-600">
-            Current active session:{" "}
-            <span className="font-semibold">{activeSession}</span>
+            Current active session: <span className="font-semibold">{activeSession}</span>
           </p>
 
-         <button
-  className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2"
-  onClick={handleSubmit}
-  disabled={loading}
->
-  {loading ? (
-    <>
-      <Loader />
-      <span>Adding...</span>
-    </>
-  ) : (
-    "Add Class"
-  )}
-</button>
-
+          <Button onClick={handleSubmit} loading={loading}>
+            Add Class
+          </Button>
         </div>
       </div>
 
@@ -177,51 +142,26 @@ console.log({
       <div className="bg-white rounded-lg shadow p-4 sm:p-6 overflow-x-auto">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Classes List</h2>
 
-        {/* Section Filter */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Filter by Section</label>
-          <select
-            className="border rounded px-3 py-2"
-            value={filterSection}
-            onChange={(e) => setFilterSection(e.target.value)}
-          >
-            <option value="">All Sections</option>
-            <option value="Primary">Primary</option>
-            <option value="Secondary">Secondary</option>
-          </select>
-        </div>
+        <Dropdown
+          label="Filter by Section"
+          value={filterSection}
+          onChange={(e) => setFilterSection(e.target.value)}
+          options={[
+            { value: "", label: "All Sections" },
+            { value: "Primary", label: "Primary" },
+            { value: "Secondary", label: "Secondary" },
+          ]}
+          className="w-48 mb-4"
+        />
 
-        <table className="min-w-full table-auto border text-sm sm:text-base">
-          <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="p-2 border">Class Name</th>
-              <th className="p-2 border">Section</th>
-              <th className="p-2 border">Level</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClasses.length === 0 ? (
-              <tr>
-                <td colSpan="3" className="p-4 text-center text-gray-500">
-                  No classes found
-                </td>
-              </tr>
-            ) : (
-              filteredClasses.map((c, idx) => (
-                <tr key={idx} className="border-t">
-                  <td className="p-2 border">
-                    {c.name}{" "}
-                    {c.track && (
-                      <span className="text-gray-500 italic"> - {c.track}</span>
-                    )}
-                  </td>
-                  <td className="p-2 border">{c.section}</td>
-                  <td className="p-2 border">{c.level}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <Table
+          headers={["Class Name", "Section", "Level"]}
+          data={filteredClasses.map((c) => [
+            c.track ? `${c.name} - ${c.track}` : c.name,
+            c.section,
+            c.level,
+          ])}
+        />
       </div>
     </div>
   );

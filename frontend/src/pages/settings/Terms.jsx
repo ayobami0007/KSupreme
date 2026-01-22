@@ -1,9 +1,12 @@
-
-
 import { useState, useEffect } from "react";
 import { getSessions } from "../../api/sessions.api";
 import { getTerms, createTerm, activateTerm } from "../../api/terms.api";
-import Loader from "../../components/common/Loader";
+
+// Reusable components
+import Input from "../../components/common/Input";
+import Dropdown from "../../components/common/DropDown";
+import Button from "../../components/common/Button";
+import Table from "../../components/common/Table";
 
 export default function TermsPage() {
   const [termName, setTermName] = useState("");
@@ -13,7 +16,7 @@ export default function TermsPage() {
   const [sessions, setSessions] = useState([]);
   const [terms, setTerms] = useState([]);
   const [filterSessionId, setFilterSessionId] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ loader state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadSessions();
@@ -43,7 +46,7 @@ export default function TermsPage() {
       setError("Term name and session are required");
       return;
     }
-    setLoading(true); // ✅ start loader
+    setLoading(true);
     try {
       const res = await createTerm({
         name: termName,
@@ -61,7 +64,7 @@ export default function TermsPage() {
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
-      setLoading(false); // ✅ stop loader
+      setLoading(false);
     }
   };
 
@@ -74,6 +77,11 @@ export default function TermsPage() {
     }
   };
 
+  // Filter terms by session
+  const filteredTerms = terms.filter(
+    (t) => !filterSessionId || t.session_id === Number(filterSessionId)
+  );
+
   return (
     <div className="p-4 sm:p-6 md:p-8 bg-gray-50 min-h-screen">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Term Management</h1>
@@ -81,30 +89,30 @@ export default function TermsPage() {
       {/* Create Term Form */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Add New Term</h2>
-        <input
+
+        <Input
+          label="Term Name"
           type="text"
-          className="w-full border rounded px-3 py-2 mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           value={termName}
           onChange={(e) => setTermName(e.target.value)}
           placeholder="Enter term name (e.g. First Term)"
+          required
         />
+
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
-        <label className="block mb-2 text-sm font-medium">Session</label>
-        <select
-          className="w-full border rounded px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        <Dropdown
+          label="Session"
           value={sessionId}
           onChange={(e) => setSessionId(e.target.value)}
-        >
-          <option value="">Select Session</option>
-          {sessions.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+          options={[
+            { value: "", label: "Select Session" },
+            ...sessions.map((s) => ({ value: s.id, label: s.name })),
+          ]}
+          required
+        />
 
-        {/* Uncomment if you want to allow marking active on creation */}
+        {/*  marking active on creation */}
         {/* <label className="flex items-center gap-2 mb-4 text-sm sm:text-base font-medium">
           <input
             type="checkbox"
@@ -114,75 +122,48 @@ export default function TermsPage() {
           Mark as active term
         </label> */}
 
-        <button
-          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Loader />
-              <span>Creating...</span>
-            </>
-          ) : (
-            "Create Term"
-          )}
-        </button>
+        <Button onClick={handleSubmit} loading={loading}>
+          Create Term
+        </Button>
       </div>
 
-      {/* session select */}
-      <label className="block mb-2 text-sm font-medium">Filter by Session</label>
-      <select
-        className="w-full sm:w-64 border rounded px-3 py-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+      {/* Session Filter */}
+      <Dropdown
+        label="Filter by Session"
         value={filterSessionId}
         onChange={(e) => setFilterSessionId(e.target.value)}
-      >
-        <option value="">All Sessions</option>
-        {sessions.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.name} {s.is_active ? "(Active)" : ""}
-          </option>
-        ))}
-      </select>
+        options={[
+          { value: "", label: "All Sessions" },
+          ...sessions.map((s) => ({
+            value: s.id,
+            label: s.is_active ? `${s.name} (Active)` : s.name,
+          })),
+        ]}
+        className="w-64 mb-4"
+      />
 
       {/* Terms Table */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6 overflow-x-auto">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Existing Terms</h2>
-        <table className="min-w-full border-collapse text-sm sm:text-base">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">ID</th>
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {terms
-              .filter((t) => !filterSessionId || t.session_id === Number(filterSessionId))
-              .map((t) => (
-                <tr key={t.id}>
-                  <td className="border p-2">{t.id}</td>
-                  <td className="border p-2">
-                    {t.name} – {t.session_name}
-                  </td>
-                  <td className="border p-2">
-                    {t.is_active ? "Active" : "Inactive"}
-                  </td>
-                  <td className="border p-2">
-                    {!t.is_active && (
-                      <button
-                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition cursor-pointer"
-                        onClick={() => handleActivate(t.id)}
-                      >
-                        Activate
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+
+        <Table
+          headers={["ID", "Name", "Status", "Action"]}
+          data={filteredTerms.map((t) => [
+            t.id,
+            `${t.name} – ${t.session_name}`,
+            t.is_active ? "Active" : "Inactive",
+            !t.is_active ? (
+              <button
+                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition cursor-pointer"
+                onClick={() => handleActivate(t.id)}
+              >
+                Activate
+              </button>
+            ) : (
+              ""
+            ),
+          ])}
+        />
       </div>
     </div>
   );

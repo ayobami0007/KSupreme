@@ -2,8 +2,8 @@
 
 
 import { useState, useEffect } from "react";
-import PaymentFilters from "../../components/common/PaymentFilters";
-import StudentsTable from "../../components/common/StudentsTable";
+import PaymentFilters from "./PaymentFilters";
+import StudentsTable from "./StudentsTable";
 import { useTerm } from "../../context/TermContext";
 import { useParams } from "react-router-dom";
 import { getClasses } from "../../api/classes.api";

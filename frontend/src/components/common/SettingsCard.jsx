@@ -1,4 +1,4 @@
-// components/SettingsCard.jsx
+
 export default function SettingsCard({ title, description, onClick }) {
   return (
     <div

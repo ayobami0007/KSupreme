@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { createSession, getSessions, activateSession } from "../../api/sessions.api";
 import Loader from "../../components/common/Loader";
+import Button from "../../components/common/Button";
+import Input from "../../components/common/Input";
 
 export default function SessionsPage() {
   const [sessionName, setSessionName] = useState("");
@@ -26,9 +28,10 @@ export default function SessionsPage() {
   const handleSubmit = async () => {
     if (!sessionName.trim()) {
       setError("Session name is required");
-      setLoading(true)
+      
       return;
     }
+    setLoading(true)
     try {
       const res = await createSession({ name: sessionName });
       if (isActive) {
@@ -61,12 +64,15 @@ export default function SessionsPage() {
       {/* Create Session Form */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Add New Session</h2>
-        <input
-          type="text"
-          className="w-full border rounded px-3 py-2 mb-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+
+
+        <Input
+          label="session Name"
           value={sessionName}
+          type="text"
           onChange={(e) => setSessionName(e.target.value)}
           placeholder="Enter session name (e.g. 2025/2026)"
+          required
         />
         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
@@ -74,25 +80,20 @@ export default function SessionsPage() {
           <input
             type="checkbox"
             checked={isActive}
+
             onChange={(e) => setIsActive(e.target.checked)}
           />
           Mark as active session
         </label>
 
-        <button
-          className=" cursor-pointer w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2"
+        <Button
+
           onClick={handleSubmit}
-          disabled={loading}
+          loading={loading}
         >
-          {loading ? (
-            <>
-              <Loader />
-              <span>Creating....</span>
-            </>
-          ) : (
-            "Create Session"
-          )}
-        </button>
+          Add session
+        </Button>
+
       </div>
 
       {/* Sessions List */}

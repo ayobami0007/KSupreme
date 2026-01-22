@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 // import { useParams } from "react-router-dom";
+import Table from "../../components/common/Table";
 
 
 
@@ -28,7 +29,7 @@ const StudentsTable = ({ students, currentPage, totalPages, onPageChange }) => {
       }
     }
 
-   
+
     if (currentPage < totalPages - windowSize) {
       if (currentPage < totalPages - windowSize - 1) {
         pages.push("...");
@@ -45,7 +46,7 @@ const StudentsTable = ({ students, currentPage, totalPages, onPageChange }) => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full table-auto border">
+        {/* <table className="w-full table-auto border">
           <thead className="bg-gray-100 text-left">
             <tr>
               <th className="p-3">Student ID</th>
@@ -86,7 +87,32 @@ const StudentsTable = ({ students, currentPage, totalPages, onPageChange }) => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> */}
+
+        <Table
+          headers={["Student Id", "Student Name", "Class", "Status", "Action"]}
+          data={students.map((s) => [
+            s.id,
+            s.name,
+            s.class,
+
+            <span className={`
+          px-2 py-1 rounded font-semibold ${s.status === "Paid"
+                ? "bg-green-500 text-white" : s.status === "No Fee Set" ?
+                  "bg-gray-400 text-white" : "bg-orange-500 text-white"}`} >
+              {s.status} </span>,
+
+            <Link to={`/students/${s.id}/payment`}>
+              <button aria-label={`Manage payment for ${s.name}`}
+                className="bg-blue-600 text-white px-4 py-1 rounded cursor-pointer" >
+                {s.status === "Paid" ? "View" : "Pay"}
+              </button>
+            </Link>,
+          ])}
+
+        />
+
+
       </div>
 
       {/* Pagination controls */}
@@ -106,9 +132,8 @@ const StudentsTable = ({ students, currentPage, totalPages, onPageChange }) => {
             <button
               key={page}
               onClick={() => onPageChange(page)}
-              className={`px-3 py-1 rounded ${
-                currentPage === page ? "bg-blue-600 text-white" : "bg-gray-200"
-              }`}
+              className={`px-3 py-1 rounded ${currentPage === page ? "bg-blue-600 text-white" : "bg-gray-200"
+                }`}
             >
               {page}
             </button>
