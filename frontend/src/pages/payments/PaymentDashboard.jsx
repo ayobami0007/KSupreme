@@ -8,9 +8,10 @@ import AddPaymentModal from "../../components/student/AddPaymentModal";
 
 import {useParams} from "react-router-dom";
 import { getStudentPaymentInfo , addPayment} from "../../api/payments.api";
-import { useTerm } from "../../context/TermContext";
+// import { useTerm } from "../../context/TermContext";
 import Loader from "../../components/common/Loader";
 import ReceiptModal from "./ReceiptModal";
+import BackArrow from "../../components/common/BackArrow";
 
 
 const StudentDashboard = () => {
@@ -90,6 +91,7 @@ const handlePrintReceipt = (payment) =>{
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen ">
+       <BackArrow/>
       <h1 className="text-2xl font-bold mb-6">Student Payment Dashboard</h1>
 
     <StudentInfoCard student={{ ...student, total_paid: totalPaid, balance }} />

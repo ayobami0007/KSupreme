@@ -8,6 +8,7 @@ import Input from "../../components/common/Input";
 import Dropdown from "../../components/common/DropDown";
 import Button from "../../components/common/Button";
 import Table from "../../components/common/Table";
+import BackArrow from "../../components/common/BackArrow";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -76,6 +77,8 @@ export default function StudentsPage() {
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
+<BackArrow/>
+
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Student Management</h1>
 
       {/* Add Student Form */}

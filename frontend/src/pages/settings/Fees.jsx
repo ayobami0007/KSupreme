@@ -11,6 +11,7 @@ import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import Table from "../../components/common/Table";
 import Select from "react-select";
+import BackArrow from "../../components/common/BackArrow";
 
 export default function FeesPage() {
   const [classes, setClasses] = useState([]);
@@ -103,6 +104,7 @@ export default function FeesPage() {
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
+      <BackArrow/>
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">School Fees Management</h1>
 
       {/* Fee Setup Form */}

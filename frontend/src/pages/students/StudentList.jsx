@@ -74,6 +74,7 @@ const StudentList = () => {
     loadStudents();
   }, [selectedClass, searchQuery, selectedStatus, activeTerm, currentPage]);
 
+
   if (loading) return <p><Loader/></p>;
   if (!activeTerm) return <p>No active term found</p>;
 

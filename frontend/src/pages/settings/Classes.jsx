@@ -7,6 +7,7 @@ import Input from "../../components/common/Input";
 import Dropdown from "../../components/common/DropDown";
 import Button from "../../components/common/Button";
 import Table from "../../components/common/Table";
+import BackArrow from "../../components/common/BackArrow";
 
 export default function ClassManagement({ activeSession = "2024/2025" }) {
   const [className, setClassName] = useState("");
@@ -70,6 +71,7 @@ export default function ClassManagement({ activeSession = "2024/2025" }) {
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
+      <BackArrow/>
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Class Management</h1>
 
       {/* Add Class Form */}
