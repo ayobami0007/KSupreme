@@ -19,7 +19,11 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
           <div className="flex justify-between items-center bg-blue-700 text-white p-2">
             <div className="text-center flex-1">
               <img src={logo} alt="School Logo" className="h-12 mx-auto mb-1" />
-              <h2 className="text-lg font-bold">Ksupreme College</h2>
+              {/* <h2 className="text-lg font-bold">Ksupreme College</h2> */}
+
+              <h2 className="text-lg font-bold ">
+                {student.section === "Primary" ? "Ksupreme kiddis school": "ksupreme college"} 
+              </h2>
               <p>Opomalu Ilorin</p>
               <div className="mt-1 flex justify-between text-xs">
                 <span>Date: {new Date(payment.payment_date).toLocaleDateString()}</span>

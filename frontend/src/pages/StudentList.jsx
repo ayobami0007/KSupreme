@@ -2,13 +2,13 @@
 
 
 import { useState, useEffect } from "react";
-import PaymentFilters from "./PaymentFilters";
-import StudentsTable from "./StudentsTable";
-import { useTerm } from "../../context/TermContext";
+import PaymentFilters from "../components/student/PaymentFilters";
+import StudentsTable from "../components/student/StudentsTable";
+import { useTerm } from "../context/TermContext";
 import { useParams } from "react-router-dom";
-import { getClasses } from "../../api/classes.api";
-import { getStudentsWithStatus } from "../../api/students.api";
-import Loader from "../../components/common/Loader";
+import { getClasses } from "../api/classes.api";
+import { getStudentsWithStatus } from "../api/students.api";
+import Loader from "../components/common/Loader";
 
 const StudentList = () => {
   const { id } = useParams();

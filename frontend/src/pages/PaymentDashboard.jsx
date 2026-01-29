@@ -1,17 +1,17 @@
 
 import { useState ,useEffect} from "react";
-import StudentInfoCard from "../../components/student/StudentInfoCard";
-import FeeSummaryCards from "../../components/student/FeeSummaryCards";
-import PaymentProgress from "../../components/student/PaymentProgress";
-import PaymentHistoryTable from "../../components/student/PaymentHistoryTable";
-import AddPaymentModal from "../../components/student/AddPaymentModal";
+import StudentInfoCard from "../components/student/StudentInfoCard";
+import FeeSummaryCards from "../components/student/FeeSummaryCards";
+import PaymentProgress from "../components/student/PaymentProgress";
+import PaymentHistoryTable from "../components/student/PaymentHistoryTable";
+import AddPaymentModal from "../components/student/AddPaymentModal";
 
 import {useParams} from "react-router-dom";
-import { getStudentPaymentInfo , addPayment} from "../../api/payments.api";
+import { getStudentPaymentInfo , addPayment} from "../api/payments.api";
 // import { useTerm } from "../../context/TermContext";
-import Loader from "../../components/common/Loader";
-import ReceiptModal from "./ReceiptModal";
-import BackArrow from "../../components/common/BackArrow";
+import Loader from "../components/common/Loader";
+import ReceiptModal from "../components/student/ReceiptModal";
+import BackArrow from "../components/common/BackArrow";
 
 
 const StudentDashboard = () => {

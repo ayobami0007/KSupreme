@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import SummaryCards from "./SummaryCards";
-import PaymentsTable from "./PaymentsTable";
-import { useTerm } from "../../context/TermContext";
-import { getDashboardSummary , getRecentPayments} from "../../api/dashboard.api";
-import Loader from "../../components/common/Loader";
+import SummaryCards from "../components/dashboard/SummaryCards";
+import PaymentsTable from "../components/dashboard/PaymentsTable";
+import { useTerm } from "../context/TermContext";
+import { getDashboardSummary , getRecentPayments} from "../api/dashboard.api";
+import Loader from "../components/common/Loader";
 // import FullPageLoader from "../components/common/fullPageLoader";
 const Dashboard = () => {
   const { activeTerm, loading } = useTerm();

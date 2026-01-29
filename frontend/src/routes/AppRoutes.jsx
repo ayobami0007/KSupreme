@@ -4,9 +4,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import DashboardLayout from "../components/layouts/DashboardLayout"; 
-import Dashboard from '../pages/dashboard/dashboard'
-import Students from "../pages/students/StudentList";
-import Payments from "../pages/payments/PaymentDashboard";
+import Dashboard from '../pages/dashboard'
+import Students from "../pages/StudentList";
+import Payments from "../pages/PaymentDashboard";
 import Reports from "../pages/Reports";
 import Settings from "../pages/settings/Settings"
 import SessionsPage from "../pages/settings/Sessions";
