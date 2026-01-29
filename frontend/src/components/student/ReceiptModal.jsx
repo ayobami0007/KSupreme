@@ -112,10 +112,12 @@
 // export default ReceiptModal;
 import React from "react";
 import logo from "../../assets/logo.png";
+import { useTerm } from "../../context/TermContext";
 
 const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
+  const {activeTerm, loading} = useTerm();
   if (!isOpen || !payment || !student) return null;
-
+if (loading) return null[;]
   const receiptNumber = `REC-${student.id}-${payment.id}`;
 
   return (
@@ -168,7 +170,7 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Term</td>
-                <td className="p-2">{student.term}</td>
+                <td className="p-2">{activeTerm?.term}</td>
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Payment Mode</td>
@@ -180,11 +182,11 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
               </tr>
               <tr className="border-b">
                 <td className="p-2 font-semibold">Balance</td>
-                <td className="p-2">₦{Number(payment.balance).toLocaleString()}</td>
+                <td className="p-2">₦{Number(student.balance).toLocaleString()}</td>
               </tr>
               <tr>
                 <td className="p-2 font-semibold">Description</td>
-                <td className="p-2">School Fees for {student.term}</td>
+                <td className="p-2"> School Fees for {activeTerm?.term}</td>
               </tr>
             </tbody>
           </table>
