@@ -117,7 +117,7 @@ import { useTerm } from "../../context/TermContext";
 const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
   const {activeTerm, loading} = useTerm();
   if (!isOpen || !payment || !student) return null;
-if (loading) return null[;]
+if (loading) return null;
   const receiptNumber = `REC-${student.id}-${payment.id}`;
 
   return (
