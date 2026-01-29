@@ -9,7 +9,7 @@ const StudentInfoCard = ({ student }) => {
     <div className="bg-white shadow rounded p-4 mb-6">
       <h2 className="text-xl font-semibold mb-2">{student.name}</h2>
       <p><strong>Student ID:</strong> {student.id}</p>
-      <p><strong>Class:</strong> {student.class}</p>
+      <p><strong>Class:</strong> {student.class} -{student.section}</p>
       <p>
         <strong>Active Term:</strong> {activeTerm.session} – {activeTerm.term}
       </p>

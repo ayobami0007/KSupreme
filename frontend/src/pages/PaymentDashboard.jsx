@@ -35,6 +35,7 @@ useEffect(() => {
     try {
       // console.log("Fetching payment info  with:", { id });
       const data = await getStudentPaymentInfo(id);
+      console.log(data)
       setStudent(data);
       setPayments(data.payments || []);
     } catch (err) {

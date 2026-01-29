@@ -150,7 +150,7 @@ class PaymentModel {
 static async getPaymentInfo(student_id) {
   // 1. Get student basic info including class_id
   const studentRes = await db.query(
-    `SELECT s.id, s.name, s.class_id, c.name AS class_name
+    `SELECT s.id, s.name, s.class_id, c.name AS class_name, c.section
      FROM students s
      JOIN classes c ON s.class_id = c.id
      WHERE s.id = $1`,
@@ -195,6 +195,7 @@ static async getPaymentInfo(student_id) {
     id: student.id,
     name: student.name,
     class: student.class_name,
+    section:student.section,
     class_id: classId,
     term_id: termId,
     total_fee: totalFee,
