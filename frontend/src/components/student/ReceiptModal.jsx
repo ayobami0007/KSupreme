@@ -130,10 +130,10 @@
 // };
 
 // export default ReceiptModal;
+
 import React from "react";
 import logo from "../../assets/logo.png";
 import { useTerm } from "../../context/TermContext";
-
 
 const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
   const { activeTerm, loading } = useTerm();
@@ -148,8 +148,8 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
       <div className="fixed inset-0 bg-black bg-opacity-50 z-40 print:hidden"></div>
 
       {/* Receipt Content */}
-      <div className="receipt-content fixed inset-0 flex items-center justify-center z-50">
-        <div className="bg-white border-4 border-blue-700 w-full max-w-md rounded shadow-lg overflow-hidden print:w-full print:max-w-none print:shadow-none p-6 text-sm">
+      <div className="receipt-content fixed inset-0 flex items-center justify-center z-50 p-4">
+        <div className="bg-white border-4 border-blue-700 w-full max-w-md md:max-w-lg lg:max-w-xl rounded shadow-lg overflow-hidden print:w-full print:max-w-none print:shadow-none p-6 text-sm">
 
           {/* Header */}
           <div className="text-center mb-4">
@@ -161,15 +161,13 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
             </h2>
             <p>Opomalu, Ilorin</p>
           </div>
-<hr className="border-gray-300 my-2" />
+          <hr className="border-gray-300 my-2" />
 
           {/* Receipt Metadata */}
-          <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-4">
             <div><strong>Receipt Number:</strong> {receiptNumber}</div>
             <div><strong>Date:</strong> {new Date(payment.payment_date).toLocaleDateString()}</div>
           </div>
-      
-
 
           {/* Student Info */}
           <div className="space-y-1 text-sm mb-4">
@@ -177,7 +175,7 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
             <p><strong>Class:</strong> {student.class} - {student.section}</p>
             <p><strong>Term:</strong> {activeTerm?.term}</p>
           </div>
-              <hr className="border-gray-300 my-2" />
+          <hr className="border-gray-300 my-2" />
 
           {/* Payment Breakdown Table */}
           <table className="w-full border border-gray-300 text-sm mb-4">
@@ -196,16 +194,14 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
               </tr>
             </tbody>
           </table>
-
-              <hr className="border-gray-300 my-2" />
+          <hr className="border-gray-300 my-2" />
 
           {/* Totals */}
-          <div className="grid grid-cols-2 gap-4 text-sm mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6">
             <div><strong>Total Amount Paid:</strong> ₦{Number(student.total_paid).toLocaleString()}</div>
             <div><strong>Balance:</strong> ₦{Number(student.balance).toLocaleString()}</div>
           </div>
-
-              <hr className="border-gray-300 my-2" />
+          <hr className="border-gray-300 my-2" />
 
           {/* Signature & Stamp */}
           <div className="flex justify-between mt-6 text-xs text-gray-600">
@@ -224,13 +220,19 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
             “Knowledge, Discipline, Excellence”
           </div>
 
-          {/* Print Button */}
-          <div className="mt-6 flex justify-center print:hidden">
+          {/* Action Buttons */}
+          <div className="mt-6 flex justify-center space-x-4 print:hidden">
             <button
               onClick={() => window.print()}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
               Print Receipt
+            </button>
+            <button
+              onClick={onClose}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Cancel
             </button>
           </div>
         </div>
@@ -254,7 +256,7 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
               height: 50%;
               margin: auto; 
               transform: scale(0.5); 
-               transform-origin: top center;
+              transform-origin: top center;
             }
           }
         `}
@@ -264,3 +266,4 @@ const ReceiptModal = ({ isOpen, onClose, payment, student }) => {
 };
 
 export default ReceiptModal;
+
