@@ -8,6 +8,10 @@ export const addStudent = async (studentData) =>
 export const updateStudent = async (id, studentData) =>
   (await api.put(`/students/${id}`, studentData)).data;
 
+export const deleteStudent = async (id) =>
+  (await api.delete(`/students/${id}`)).data;
+
+
 
 
 
