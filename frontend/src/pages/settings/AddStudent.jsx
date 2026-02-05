@@ -217,7 +217,7 @@
 //         <Button onClick={() => handleDeactivate(s.id)}>Deactivate</Button>
 //         ): (
 //           <Button onClick={() => handleReactivate(s.id)}>Activate</Button>
-        
+
 //       )}
 //       </>
 //     ),
@@ -258,7 +258,7 @@ export default function StudentsPage() {
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [editingName, setEditingName] = useState("");
 
-  // Action loading (per row)
+
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
   // Page loading
@@ -266,15 +266,16 @@ export default function StudentsPage() {
 
   // Filter state
   const [filterClass, setFilterClass] = useState("");
+  const [filterStatus, setFilterStatus] = useState("Active")
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [filterStatus]);
 
   const loadData = async () => {
     try {
       setPageLoading(true);
-      const studentData = await getStudents();
+      const studentData = await getStudents({status: filterStatus || undefined});
       setStudents(studentData);
 
       const classData = await getClasses();
@@ -433,6 +434,16 @@ export default function StudentsPage() {
           className="w-48 mb-4"
         />
 
+
+        <Dropdown
+          label="filter by status"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          options={[
+            { value: "", label: "All" }, 
+            { value: "Active", label: "Active" },
+            { value: "Inactive", label: "Inactive" },
+          ]} />
         {pageLoading ? (
           <Loader />
         ) : (
