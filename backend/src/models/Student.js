@@ -114,10 +114,11 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
   const params = [];
   let i = 1;
 
-  // status filter (default to Active if not provided)
-  const status = filters.status || "Active";
-  sql += ` AND students.status = $${i++}`;
-  params.push(status);
+  // ✅ Only add status filter if provided
+  if (filters.status) {
+    sql += ` AND students.status = $${i++}`;
+    params.push(filters.status);
+  }
 
   if (filters.class_id) {
     sql += ` AND students.class_id = $${i++}`;
@@ -157,9 +158,11 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
     const countParams = [];
     let j = 1;
 
-    const statusCount = filters.status || "Active";
-    countSql += ` AND students.status = $${j++}`;
-    countParams.push(statusCount);
+    // ✅ Only add status filter if provided
+    if (filters.status) {
+      countSql += ` AND students.status = $${j++}`;
+      countParams.push(filters.status);
+    }
 
     if (filters.class_id) {
       countSql += ` AND students.class_id = $${j++}`;
@@ -191,6 +194,7 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
     throw new Error(`Failed to fetch students: ${err.message}`);
   }
 }
+
 
 
 

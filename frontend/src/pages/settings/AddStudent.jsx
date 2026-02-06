@@ -214,7 +214,7 @@ const [totalCount, setTotalCount] = useState(0)
             options={[
               { value: "", label: "All Classes" },
               ...classes.map((c) => ({
-                value: c.name,
+                value: c.id,
                 label: c.track ? `${c.name} - ${c.track}` : c.name,
               })),
             ]}
