@@ -13,8 +13,13 @@ function mapErrorToStatus(err) {
 // Get students (Bursar view / filtered)
 router.get("/", async (req, res) => {
   try {
-    const { class_id, section, level, track, search, status } = req.query;
-    const students = await Student.getAll({ class_id, section, level, track, search, status });
+    const { class_id, section, level, track, search, status, limit,offset } = req.query;
+    const students = await Student.getAll(
+      { class_id, section, level, track, search, status },
+      limit ? parseInt(limit) : 20,
+      offset ? parseInt(offset) : 0 
+    );
+    
     res.json(students);
   } catch (err) {
     console.error("Error fetching students:", err);

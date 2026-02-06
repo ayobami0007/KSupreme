@@ -1,7 +1,11 @@
 import api from "./axios";
 export const getStudents = async (filters = {}) =>
-  (await api.get("/students", { params: filters })).data;
+{
+  const res =  await api.get("/students", { params: filters });
+  return res.data;
 
+}
+  
 export const addStudent = async (studentData) =>
   (await api.post("/students", studentData)).data;
 

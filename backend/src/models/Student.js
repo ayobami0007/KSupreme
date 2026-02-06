@@ -43,58 +43,156 @@ class Student {
     }
   }
 
-  static async getAll(filters = {}) {
-    let sql = `
-      SELECT 
-        students.*,
-        classes.name AS class_name,
-        classes.section,
-        classes.level,
-        classes.track
+  // static async getAll(filters = {}, limit=20, offset=0) {
+  //   let sql = `
+  //     SELECT 
+  //       students.*,
+  //       classes.name AS class_name,
+  //       classes.section,
+  //       classes.level,
+  //       classes.track
+  //     FROM students
+  //     JOIN classes ON students.class_id = classes.id
+  //     WHERE 1=1
+  //   `;
+
+  //   const params = [];
+  //   let i = 1;
+
+  //   // status filter (default to Active if not provided)
+  //   const status = filters.status || "Active";
+  //   sql += ` AND students.status = $${i++}`;
+  //   params.push(status);
+
+  //   if (filters.class_id) {
+  //     sql += ` AND students.class_id = $${i++}`;
+  //     params.push(filters.class_id);
+  //   }
+  //   if (filters.section) {
+  //     sql += ` AND classes.section = $${i++}`;
+  //     params.push(filters.section);
+  //   }
+  //   if (filters.level) {
+  //     sql += ` AND classes.level = $${i++}`;
+  //     params.push(filters.level);
+  //   }
+  //   if (filters.track) {
+  //     sql += ` AND classes.track = $${i++}`;
+  //     params.push(filters.track);
+  //   }
+  //   if (filters.search) {
+  //     sql += ` AND students.name ILIKE $${i++}`;
+  //     params.push(`%${filters.search}%`);
+  //   }
+
+  //   sql += ` ORDER BY students.id DESC LIMIT $${i++} OFFSET $${i++}`;
+  //   params.push(limit);
+  //   params.push(offset)
+
+  //   try {
+  //     const res = await db.query(sql, params);
+  //     return res.rows;
+  //   } catch (err) {
+  //     console.error("Error fetching students:", err);
+  //     throw new Error(`Failed to fetch students: ${err.message}`);
+  //   }
+  // }
+
+static async getAll(filters = {}, limit = 20, offset = 0) {
+  let sql = `
+    SELECT 
+      students.*,
+      classes.name AS class_name,
+      classes.section,
+      classes.level,
+      classes.track
+    FROM students
+    JOIN classes ON students.class_id = classes.id
+    WHERE 1=1
+  `;
+
+  const params = [];
+  let i = 1;
+
+  // status filter (default to Active if not provided)
+  const status = filters.status || "Active";
+  sql += ` AND students.status = $${i++}`;
+  params.push(status);
+
+  if (filters.class_id) {
+    sql += ` AND students.class_id = $${i++}`;
+    params.push(filters.class_id);
+  }
+  if (filters.section) {
+    sql += ` AND classes.section = $${i++}`;
+    params.push(filters.section);
+  }
+  if (filters.level) {
+    sql += ` AND classes.level = $${i++}`;
+    params.push(filters.level);
+  }
+  if (filters.track) {
+    sql += ` AND classes.track = $${i++}`;
+    params.push(filters.track);
+  }
+  if (filters.search) {
+    sql += ` AND students.name ILIKE $${i++}`;
+    params.push(`%${filters.search}%`);
+  }
+
+  sql += ` ORDER BY students.id DESC LIMIT $${i++} OFFSET $${i++}`;
+  params.push(limit);
+  params.push(offset);
+
+  try {
+    const res = await db.query(sql, params);
+
+    // Count query for total rows (without limit/offset)
+    let countSql = `
+      SELECT COUNT(*) AS total
       FROM students
       JOIN classes ON students.class_id = classes.id
       WHERE 1=1
     `;
+    const countParams = [];
+    let j = 1;
 
-    const params = [];
-    let i = 1;
-
-    // status filter (default to Active if not provided)
-    const status = filters.status || "Active";
-    sql += ` AND students.status = $${i++}`;
-    params.push(status);
+    const statusCount = filters.status || "Active";
+    countSql += ` AND students.status = $${j++}`;
+    countParams.push(statusCount);
 
     if (filters.class_id) {
-      sql += ` AND students.class_id = $${i++}`;
-      params.push(filters.class_id);
+      countSql += ` AND students.class_id = $${j++}`;
+      countParams.push(filters.class_id);
     }
     if (filters.section) {
-      sql += ` AND classes.section = $${i++}`;
-      params.push(filters.section);
+      countSql += ` AND classes.section = $${j++}`;
+      countParams.push(filters.section);
     }
     if (filters.level) {
-      sql += ` AND classes.level = $${i++}`;
-      params.push(filters.level);
+      countSql += ` AND classes.level = $${j++}`;
+      countParams.push(filters.level);
     }
     if (filters.track) {
-      sql += ` AND classes.track = $${i++}`;
-      params.push(filters.track);
+      countSql += ` AND classes.track = $${j++}`;
+      countParams.push(filters.track);
     }
     if (filters.search) {
-      sql += ` AND students.name ILIKE $${i++}`;
-      params.push(`%${filters.search}%`);
+      countSql += ` AND students.name ILIKE $${j++}`;
+      countParams.push(`%${filters.search}%`);
     }
 
-    sql += ` ORDER BY students.id DESC`;
+    const countRes = await db.query(countSql, countParams);
+    const totalCount = parseInt(countRes.rows[0].total, 10);
 
-    try {
-      const res = await db.query(sql, params);
-      return res.rows;
-    } catch (err) {
-      console.error("Error fetching students:", err);
-      throw new Error(`Failed to fetch students: ${err.message}`);
-    }
+    return { rows: res.rows, totalCount };
+  } catch (err) {
+    console.error("Error fetching students:", err);
+    throw new Error(`Failed to fetch students: ${err.message}`);
   }
+}
+
+
 
   static async update(id, data) {
     const { name, class_id, status } = data;

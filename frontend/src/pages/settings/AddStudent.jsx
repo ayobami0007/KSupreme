@@ -14,6 +14,8 @@ import Button from "../../components/common/Button";
 import Table from "../../components/common/Table";
 import BackArrow from "../../components/common/BackArrow";
 import IconButton from "../../components/common/IconButton";
+import Pagination from "../../components/common/Pagination";
+
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -40,15 +42,28 @@ export default function StudentsPage() {
   const [filterClass, setFilterClass] = useState("");
   const [filterStatus, setFilterStatus] = useState("Active")
 
+  // pagination
+const [currentPage, setCurrentpage] = useState(1);
+const [pageSize] = useState(20)
+const [totalCount, setTotalCount] = useState(0)
+
   useEffect(() => {
     loadData();
-  }, [filterStatus]);
+  }, [filterStatus, filterClass, currentPage]);
 
   const loadData = async () => {
     try {
       setPageLoading(true);
-      const studentData = await getStudents({ status: filterStatus || undefined });
-      setStudents(studentData);
+      const offset = (currentPage - 1) * pageSize
+   
+      const {rows, totalCount} = await getStudents({ 
+        status: filterStatus === "" ? undefined : filterStatus,
+         class_id: filterClass === "" ? undefined : filterClass, 
+         limit: pageSize, 
+         offset,
+      });
+      setStudents(rows);
+      setTotalCount(totalCount)
 
       const classData = await getClasses();
       setClasses(classData);
@@ -128,15 +143,15 @@ export default function StudentsPage() {
   };
 
   // Apply filter
-  const filteredStudents = students.filter((s) => {
-    return filterClass ? s.class_name === filterClass : true;
-  });
+  // const filteredStudents = students.filter((s) => {
+  //   return filterClass ? s.class_name === filterClass : true;
+  // });
 
-  const sortedStudents = [...filteredStudents].sort(
-    (a, b) => new Date(a.created_at) - new Date(b.created_at)
-  );
+  // const sortedStudents = [...filteredStudents].sort(
+  //   (a, b) => new Date(a.created_at) - new Date(b.created_at)
+  // );
 
-  const recentStudents = sortedStudents.slice(-20);
+  // const recentStudents = sortedStudents.slice(-20);
 
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
@@ -191,7 +206,7 @@ export default function StudentsPage() {
       {/* Students Table with Class Filter */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6 overflow-x-auto">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Students List</h2>
-        <div className="flex">
+        <div className="flex gap-2">
           <Dropdown
             label="Filter by Class"
             value={filterClass}
@@ -222,7 +237,7 @@ export default function StudentsPage() {
         ) : (
           <Table
             headers={["Name", "Class", "Level", "Status", "Actions"]}
-            data={recentStudents.map((s) => [
+            data={students.map((s) => [
               editingStudentId === s.id ? (
                 <Input
                   type="text"
@@ -279,6 +294,13 @@ export default function StudentsPage() {
           />
         )}
       </div>
+      <Pagination
+  currentPage={currentPage}
+  totalCount={totalCount}
+  pageSize={pageSize}
+  onPageChange={(page) => setCurrentpage(page)}
+/>
+
     </div>
   );
 }
