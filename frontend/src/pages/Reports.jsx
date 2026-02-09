@@ -60,28 +60,28 @@ export default function PaymentReportPage() {
     } else if (student.payment_status === "Not Paid") {
       return "Not Paid";
     } else {
-      // Partial payment - show amount left
       return `₦${parseFloat(student.balance).toLocaleString()} left`;
     }
   }
 
-
+  // Table data for desktop
   const tableData = students.map((student, index) => [
-    index + 1,  // S/N
-    student.name,  // Student Name
-    student.class,  // Class
-    `₦${parseFloat(student.total_fee).toLocaleString()}`,  // Total Fee
-    `₦${parseFloat(student.total_paid).toLocaleString()}`,  // Amount Paid
-    formatAmountDisplay(student)  // Status/Balance
+    index + 1,
+    student.name,
+    student.class,
+    `₦${parseFloat(student.total_fee).toLocaleString()}`,
+    `₦${parseFloat(student.total_paid).toLocaleString()}`,
+    formatAmountDisplay(student)
   ]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Payment Report</h1>
+    <div className="p-4 md:p-6">
+      <h1 className="text-lg md:text-xl font-bold mb-4">Payment Report</h1>
 
-      {/* hide when printing */}
+      {/* Controls - hide when printing */}
       <div className="mb-6 print:hidden">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        {/* Dropdowns - stack on mobile, side-by-side on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <DropDown
             label="Class"
             value={selectedClasses}
@@ -106,11 +106,17 @@ export default function PaymentReportPage() {
           />
         </div>
 
-        <div className="flex gap-2">
-          <Button onClick={loadReport}>Generate Report</Button>
+        {/* Buttons - stack on mobile */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button onClick={loadReport} className="w-full sm:w-auto">
+            Generate Report
+          </Button>
           
           {students.length > 0 && (
-            <Button onClick={handlePrint}>
+            <Button 
+              onClick={handlePrint} 
+              className="w-full sm:w-auto hidden sm:inline-block"
+            >
               Print Report
             </Button>
           )}
@@ -122,7 +128,7 @@ export default function PaymentReportPage() {
         <Loader />
       ) : students.length > 0 ? (
         <div>
-          {/*  only shows when printing */}
+          {/* Print header - only shows when printing */}
           <div className="hidden print:block mb-4 text-center">
             <h2 className="text-2xl font-bold">Payment Report</h2>
             <p className="mt-2">
@@ -145,39 +151,99 @@ export default function PaymentReportPage() {
             <hr className="my-4" />
           </div>
 
-          {/* Table */}
-          <Table
-            headers={["S/N", "Student Name", "Class", "Total Fee", "Amount Paid", "Status/Balance"]}
-            data={tableData}
-          />
+          {/* Desktop Table - hidden on mobile */}
+          <div className="hidden md:block">
+            <Table
+              headers={["S/N", "Student Name", "Class", "Total Fee", "Amount Paid", "Status/Balance"]}
+              data={tableData}
+            />
+          </div>
 
-          {/* Summary section */}
+          {/* Mobile Card View - hidden on desktop */}
+          <div className="md:hidden space-y-4">
+            {students.map((student, index) => (
+              <div 
+                key={student.id} 
+                className="bg-white border rounded-lg p-4 shadow-sm"
+              >
+                {/* Student Number & Name */}
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <p className="text-xs text-gray-500">#{index + 1}</p>
+                    <h3 className="font-semibold text-base">{student.name}</h3>
+                    <p className="text-sm text-gray-600">{student.class}</p>
+                  </div>
+                  
+                  {/* Status Badge */}
+                  <span className={`
+                    px-2 py-1 rounded text-xs font-medium
+                    ${student.payment_status === "Fully Paid" ? "bg-green-100 text-green-800" : ""}
+                    ${student.payment_status === "Partial" ? "bg-yellow-100 text-yellow-800" : ""}
+                    ${student.payment_status === "Not Paid" ? "bg-red-100 text-red-800" : ""}
+                  `}>
+                    {student.payment_status}
+                  </span>
+                </div>
+
+                {/* Payment Details */}
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-gray-500 text-xs">Total Fee</p>
+                    <p className="font-medium">
+                      ₦{parseFloat(student.total_fee).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500 text-xs">Amount Paid</p>
+                    <p className="font-medium text-green-600">
+                      ₦{parseFloat(student.total_paid).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Balance/Status */}
+                <div className="mt-3 pt-3 border-t">
+                  <p className="text-xs text-gray-500">Balance</p>
+                  <p className={`
+                    font-semibold
+                    ${student.payment_status === "Fully Paid" ? "text-green-600" : ""}
+                    ${student.payment_status === "Partial" ? "text-yellow-600" : ""}
+                    ${student.payment_status === "Not Paid" ? "text-red-600" : ""}
+                  `}>
+                    {formatAmountDisplay(student)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Summary section - responsive */}
           <div className="mt-6 p-4 bg-gray-100 rounded border">
-            <h3 className="font-bold text-lg mb-3">Summary</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <h3 className="font-bold text-base md:text-lg mb-3">Summary</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               <div>
-                <p className="text-sm text-gray-600">Total Students</p>
-                <p className="text-xl font-semibold">{students.length}</p>
+                <p className="text-xs md:text-sm text-gray-600">Total Students</p>
+                <p className="text-lg md:text-xl font-semibold">{students.length}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Fees</p>
-                <p className="text-xl font-semibold">
+                <p className="text-xs md:text-sm text-gray-600">Total Fees</p>
+                <p className="text-lg md:text-xl font-semibold">
                   ₦{students
                     .reduce((sum, s) => sum + parseFloat(s.total_fee || 0), 0)
                     .toLocaleString()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Collected</p>
-                <p className="text-xl font-semibold text-green-600">
+                <p className="text-xs md:text-sm text-gray-600">Total Collected</p>
+                <p className="text-lg md:text-xl font-semibold text-green-600">
                   ₦{students
                     .reduce((sum, s) => sum + parseFloat(s.total_paid || 0), 0)
                     .toLocaleString()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Outstanding</p>
-                <p className="text-xl font-semibold text-red-600">
+                <p className="text-xs md:text-sm text-gray-600">Total Outstanding</p>
+                <p className="text-lg md:text-xl font-semibold text-red-600">
                   ₦{students
                     .reduce((sum, s) => sum + parseFloat(s.balance || 0), 0)
                     .toLocaleString()}
@@ -187,8 +253,8 @@ export default function PaymentReportPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-12 bg-gray-50 rounded border border-dashed">
-          <p className="text-gray-500">
+        <div className="text-center py-8 md:py-12 bg-gray-50 rounded border border-dashed">
+          <p className="text-sm md:text-base text-gray-500">
             Select a class and click "Generate Report" to view payment data
           </p>
         </div>
