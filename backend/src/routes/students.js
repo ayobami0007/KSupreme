@@ -74,6 +74,28 @@ router.get("/with-status", async (req, res) => {
 });
 
 
+router.get("/payment-report", async(req, res) => {
+  try{
+    const {class_id, payment_status} = req.query;
+    if(!class_id){
+      return res.status(400).json({
+        error: "class_id is required"
+      })
+    }
+
+    const students = await Student.getPaymentReport({
+      class_id : parseInt(class_id),
+      payment_status : payment_status || ""
+    })
+
+    res.json(students)
+  } catch(err){
+    console.error("Error fetching payment report:", err)
+    res.status(500).json({error: err.message})
+  }
+
+})
+
 
 
 

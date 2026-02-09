@@ -98,8 +98,8 @@ class Student {
   //   }
   // }
 
-static async getAll(filters = {}, limit = 20, offset = 0) {
-  let sql = `
+  static async getAll(filters = {}, limit = 20, offset = 0) {
+    let sql = `
     SELECT 
       students.*,
       classes.name AS class_name,
@@ -111,89 +111,89 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
     WHERE 1=1
   `;
 
-  const params = [];
-  let i = 1;
+    const params = [];
+    let i = 1;
 
-  // ✅ Only add status filter if provided
-  if (filters.status) {
-    sql += ` AND students.status = $${i++}`;
-    params.push(filters.status);
-  }
+    // ✅ Only add status filter if provided
+    if (filters.status) {
+      sql += ` AND students.status = $${i++}`;
+      params.push(filters.status);
+    }
 
-  if (filters.class_id) {
-    sql += ` AND students.class_id = $${i++}`;
-    params.push(filters.class_id);
-  }
-  if (filters.section) {
-    sql += ` AND classes.section = $${i++}`;
-    params.push(filters.section);
-  }
-  if (filters.level) {
-    sql += ` AND classes.level = $${i++}`;
-    params.push(filters.level);
-  }
-  if (filters.track) {
-    sql += ` AND classes.track = $${i++}`;
-    params.push(filters.track);
-  }
-  if (filters.search) {
-    sql += ` AND students.name ILIKE $${i++}`;
-    params.push(`%${filters.search}%`);
-  }
+    if (filters.class_id) {
+      sql += ` AND students.class_id = $${i++}`;
+      params.push(filters.class_id);
+    }
+    if (filters.section) {
+      sql += ` AND classes.section = $${i++}`;
+      params.push(filters.section);
+    }
+    if (filters.level) {
+      sql += ` AND classes.level = $${i++}`;
+      params.push(filters.level);
+    }
+    if (filters.track) {
+      sql += ` AND classes.track = $${i++}`;
+      params.push(filters.track);
+    }
+    if (filters.search) {
+      sql += ` AND students.name ILIKE $${i++}`;
+      params.push(`%${filters.search}%`);
+    }
 
-  sql += ` ORDER BY students.id DESC LIMIT $${i++} OFFSET $${i++}`;
-  params.push(limit);
-  params.push(offset);
+    sql += ` ORDER BY students.id DESC LIMIT $${i++} OFFSET $${i++}`;
+    params.push(limit);
+    params.push(offset);
 
-  try {
-    const res = await db.query(sql, params);
+    try {
+      const res = await db.query(sql, params);
 
-    // Count query for total rows (without limit/offset)
-    let countSql = `
+      // Count query for total rows (without limit/offset)
+      let countSql = `
       SELECT COUNT(*) AS total
       FROM students
       JOIN classes ON students.class_id = classes.id
       WHERE 1=1
     `;
-    const countParams = [];
-    let j = 1;
+      const countParams = [];
+      let j = 1;
 
-    // ✅ Only add status filter if provided
-    if (filters.status) {
-      countSql += ` AND students.status = $${j++}`;
-      countParams.push(filters.status);
-    }
+      // ✅ Only add status filter if provided
+      if (filters.status) {
+        countSql += ` AND students.status = $${j++}`;
+        countParams.push(filters.status);
+      }
 
-    if (filters.class_id) {
-      countSql += ` AND students.class_id = $${j++}`;
-      countParams.push(filters.class_id);
-    }
-    if (filters.section) {
-      countSql += ` AND classes.section = $${j++}`;
-      countParams.push(filters.section);
-    }
-    if (filters.level) {
-      countSql += ` AND classes.level = $${j++}`;
-      countParams.push(filters.level);
-    }
-    if (filters.track) {
-      countSql += ` AND classes.track = $${j++}`;
-      countParams.push(filters.track);
-    }
-    if (filters.search) {
-      countSql += ` AND students.name ILIKE $${j++}`;
-      countParams.push(`%${filters.search}%`);
-    }
+      if (filters.class_id) {
+        countSql += ` AND students.class_id = $${j++}`;
+        countParams.push(filters.class_id);
+      }
+      if (filters.section) {
+        countSql += ` AND classes.section = $${j++}`;
+        countParams.push(filters.section);
+      }
+      if (filters.level) {
+        countSql += ` AND classes.level = $${j++}`;
+        countParams.push(filters.level);
+      }
+      if (filters.track) {
+        countSql += ` AND classes.track = $${j++}`;
+        countParams.push(filters.track);
+      }
+      if (filters.search) {
+        countSql += ` AND students.name ILIKE $${j++}`;
+        countParams.push(`%${filters.search}%`);
+      }
 
-    const countRes = await db.query(countSql, countParams);
-    const totalCount = parseInt(countRes.rows[0].total, 10);
+      const countRes = await db.query(countSql, countParams);
+      const totalCount = parseInt(countRes.rows[0].total, 10);
 
-    return { rows: res.rows, totalCount };
-  } catch (err) {
-    console.error("Error fetching students:", err);
-    throw new Error(`Failed to fetch students: ${err.message}`);
+      return { rows: res.rows, totalCount };
+    } catch (err) {
+      console.error("Error fetching students:", err);
+      throw new Error(`Failed to fetch students: ${err.message}`);
+    }
   }
-}
 
 
 
@@ -236,7 +236,7 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
 
 
   static async getWithStatus({ class_id = null, search = "", status = "", limit = 30, offset = 0 }) {
-    // 1️⃣ Find the active term
+    //  Find the active term
     const termRes = await db.query(
       "SELECT id FROM terms WHERE is_active = true LIMIT 1"
     );
@@ -303,7 +303,7 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
     params.push(limit);
     params.push(offset);
 
-    // 🔎 Count query for total rows (without limit/offset)
+    // Count query for total rows (without limit/offset)
     let countSql = `
    SELECT COUNT(*) AS total
     FROM  ( 
@@ -353,6 +353,91 @@ static async getAll(filters = {}, limit = 20, offset = 0) {
       throw new Error(`Failed to fetch students with status: ${err.message}`);
     }
   }
+
+
+static async getPaymentReport({ class_id, payment_status = "" }) {
+  
+  if (!class_id) {
+    throw new Error("class_id is required for payment report");
+  }
+
+  const termRes = await db.query(
+    "SELECT id FROM terms WHERE is_active = true LIMIT 1"
+  );
+  const activeTerm = termRes.rows[0];
+  
+  if (!activeTerm) {
+    throw new Error("No active term found.");
+  }
+
+  
+  
+  let sql = `
+    SELECT 
+      s.id,
+      s.name,
+      c.name AS class,
+      COALESCE(SUM(p.amount_paid), 0) AS total_paid,
+      COALESCE(sf.amount, 0) AS total_fee,
+      (COALESCE(sf.amount, 0) - COALESCE(SUM(p.amount_paid), 0)) AS balance,
+      CASE 
+        WHEN sf.amount IS NULL THEN 'No Fee Set'
+        WHEN COALESCE(SUM(p.amount_paid), 0) >= sf.amount THEN 'Fully Paid'
+         WHEN COALESCE(SUM(p.amount_paid), 0) = 0 THEN 'Not Paid'
+        ELSE 'Partial'
+      END AS payment_status
+    FROM students s
+    JOIN classes c ON s.class_id = c.id
+    LEFT JOIN payments p 
+      ON p.student_id = s.id 
+     AND p.class_id = c.id 
+     AND p.term_id = $1
+    LEFT JOIN school_fees sf 
+      ON sf.class_id = c.id 
+     AND sf.term_id = $1
+    WHERE s.class_id = $2  
+  `;
+  
+
+  
+  const params = [activeTerm.id, parseInt(class_id)];
+
+  sql += ` GROUP BY s.id, s.name, c.name, sf.amount`;
+
+
+  
+  if (payment_status) {
+   
+    
+    let statusCondition;
+    
+    if (payment_status === "fully_paid") {
+      statusCondition = "COALESCE(SUM(p.amount_paid), 0) >= sf.amount AND sf.amount IS NOT NULL";
+    } else if (payment_status === "partial") {
+      statusCondition = "COALESCE(SUM(p.amount_paid), 0) > 0 AND COALESCE(SUM(p.amount_paid), 0) < sf.amount";
+    } else if (payment_status === "not_paid") {
+      statusCondition = "COALESCE(SUM(p.amount_paid), 0) = 0 AND sf.amount IS NOT NULL";
+    }
+    
+    if (statusCondition) {
+      sql += ` HAVING ${statusCondition}`;
+    }
+  }
+
+  
+  sql += ` ORDER BY s.name ASC`;
+
+  try {
+    const res = await db.query(sql, params);
+    
+    
+    return res.rows;
+    
+  } catch (err) {
+    console.error("Error fetching payment report:", err);
+    throw new Error(`Failed to fetch payment report: ${err.message}`);
+  }
+}
 
 
 }

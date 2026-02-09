@@ -47,3 +47,15 @@ export const getStudentsWithStatus = async (
   return res.data;
 };
 
+export const getPaymentReport = async ({
+  classId,
+  paymentStatus = ""
+}) => {
+  const res = await api.get("/students/payment-report", {
+    params : {
+     class_id : classId,
+     payment_status: paymentStatus
+    }
+  })
+  return res.data
+}
