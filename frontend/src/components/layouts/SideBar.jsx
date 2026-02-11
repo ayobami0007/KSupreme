@@ -42,7 +42,7 @@ export default function Sidebar() {
       <aside
         className={`fixed md:static inset-y-0 left-0 w-64 h-screen bg-blue-900
         text-white transform transition-transform duration-300 
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 overflow-hidden`}
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 overflow-hidden print:hidden`}
       >
         <div className="p-6 font-bold text-lg">School Portal</div>
 
