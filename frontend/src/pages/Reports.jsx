@@ -268,7 +268,6 @@ import React, { useEffect, useState } from 'react'
 import { getPaymentReport } from '../api/students.api'
 import { getClasses } from "../api/classes.api";
 import DropDown from "../components/common/DropDown"
-import Table from "../components/common/Table"
 import Loader from '../components/common/Loader'
 import Button from '../components/common/Button';
 
@@ -326,21 +325,11 @@ export default function PaymentReportPage() {
     }
   }
 
-  const tableData = students.map((student, index) => [
-    index + 1,
-    student.name,
-    student.class,
-    `₦${parseFloat(student.total_fee).toLocaleString()}`,
-    `₦${parseFloat(student.total_paid).toLocaleString()}`,
-    formatAmountDisplay(student)
-  ]);
-
   return (
-    <div className="min-h-screen print:min-h-0">
-      {/* Wrapper - only this section prints */}
-      <div className="p-4 md:p-6 print:p-0">
+    <div className="min-h-screen">
+      <div className="p-4 md:p-6">
         
-        {/* Title - always visible */}
+        {/* Page Title - HIDE WHEN PRINTING */}
         <h1 className="text-lg md:text-xl font-bold mb-4 print:hidden">
           Payment Report
         </h1>
@@ -388,13 +377,14 @@ export default function PaymentReportPage() {
           </div>
         </div>
 
-        {/* PRINTABLE SECTION STARTS HERE */}
+        {/* RESULTS SECTION */}
         {loading ? (
           <Loader />
         ) : students.length > 0 ? (
           <div>
-            {/* Print Header - SHOW ONLY WHEN PRINTING */}
-            <div className="hidden print:block mb-4 text-center">
+            
+         
+            <div className="hidden print:block text-center mb-6">
               <h2 className="text-2xl font-bold mb-2">Payment Report</h2>
               <p className="mb-1">
                 <strong>Class:</strong> {classes.find(c => c.id === parseInt(selectedClasses))?.name}
@@ -406,49 +396,50 @@ export default function PaymentReportPage() {
                     : "All Students"
                 }
               </p>
-              <p className="text-sm mb-3">
+              <p className="text-sm mb-4">
                 Generated: {new Date().toLocaleDateString('en-NG', { 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 
                 })}
               </p>
-              <hr className="border-black" />
+              <hr className="border-black border-t-2" />
             </div>
 
-            {/* Desktop Table - PRINT THIS */}
-            <div className="hidden md:block">
-              {/* Custom wrapper just for this table's print styles */}
-              <div className="print:overflow-visible">
-                <table className="min-w-full table-auto border text-sm sm:text-base print:text-xs">
-                  <thead className="print:table-header-group">
-                    <tr className="bg-gray-100 text-left print:bg-white">
-                      {["S/N", "Student Name", "Class", "Total Fee", "Amount Paid", "Status/Balance"].map((h, i) => (
-                        <th key={i} className="p-2 border print:border-black print:p-1">
-                          {h}
-                        </th>
-                      ))}
+          
+            <div className="hidden md:block print:block">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-100 print:bg-white">
+                    <th className="border border-gray-300 p-2 text-left print:border-black">S/N</th>
+                    <th className="border border-gray-300 p-2 text-left print:border-black">Student Name</th>
+                    <th className="border border-gray-300 p-2 text-left print:border-black">Class</th>
+                    <th className="border border-gray-300 p-2 text-left print:border-black">Total Fee</th>
+                    <th className="border border-gray-300 p-2 text-left print:border-black">Amount Paid</th>
+                    <th className="border border-gray-300 p-2 text-left print:border-black">Status/Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((student, index) => (
+                    <tr key={student.id}>
+                      <td className="border border-gray-300 p-2 print:border-black">{index + 1}</td>
+                      <td className="border border-gray-300 p-2 print:border-black">{student.name}</td>
+                      <td className="border border-gray-300 p-2 print:border-black">{student.class}</td>
+                      <td className="border border-gray-300 p-2 print:border-black">
+                        ₦{parseFloat(student.total_fee).toLocaleString()}
+                      </td>
+                      <td className="border border-gray-300 p-2 print:border-black">
+                        ₦{parseFloat(student.total_paid).toLocaleString()}
+                      </td>
+                      <td className="border border-gray-300 p-2 print:border-black">
+                        {formatAmountDisplay(student)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {tableData.map((row, i) => (
-                      <tr 
-                        key={i} 
-                        className="border-t print:break-inside-avoid"
-                      >
-                        {row.map((cell, j) => (
-                          <td key={j} className="p-2 border print:border-black print:p-1">
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* Mobile Card View - HIDE WHEN PRINTING */}
             <div className="md:hidden print:hidden space-y-4">
               {students.map((student, index) => (
                 <div 
@@ -502,21 +493,17 @@ export default function PaymentReportPage() {
               ))}
             </div>
 
-            {/* Summary Section */}
-            <div className="mt-6 p-4 bg-gray-100 rounded border print:bg-white print:mt-4 print:break-inside-avoid">
-              <h3 className="font-bold text-base md:text-lg mb-3 print:text-base">
-                Summary
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 print:gap-2">
+           
+            <div className="mt-6 p-4 bg-gray-100 rounded border print:bg-white print:mt-6">
+              <h3 className="font-bold text-base md:text-lg mb-3">Summary</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <div>
                   <p className="text-xs md:text-sm text-gray-600">Total Students</p>
-                  <p className="text-lg md:text-xl font-semibold print:text-base">
-                    {students.length}
-                  </p>
+                  <p className="text-lg md:text-xl font-semibold">{students.length}</p>
                 </div>
                 <div>
                   <p className="text-xs md:text-sm text-gray-600">Total Fees</p>
-                  <p className="text-lg md:text-xl font-semibold print:text-base">
+                  <p className="text-lg md:text-xl font-semibold">
                     ₦{students
                       .reduce((sum, s) => sum + parseFloat(s.total_fee || 0), 0)
                       .toLocaleString()}
@@ -524,7 +511,7 @@ export default function PaymentReportPage() {
                 </div>
                 <div>
                   <p className="text-xs md:text-sm text-gray-600">Total Collected</p>
-                  <p className="text-lg md:text-xl font-semibold text-green-600 print:text-base">
+                  <p className="text-lg md:text-xl font-semibold text-green-600">
                     ₦{students
                       .reduce((sum, s) => sum + parseFloat(s.total_paid || 0), 0)
                       .toLocaleString()}
@@ -532,7 +519,7 @@ export default function PaymentReportPage() {
                 </div>
                 <div>
                   <p className="text-xs md:text-sm text-gray-600">Total Outstanding</p>
-                  <p className="text-lg md:text-xl font-semibold text-red-600 print:text-base">
+                  <p className="text-lg md:text-xl font-semibold text-red-600">
                     ₦{students
                       .reduce((sum, s) => sum + parseFloat(s.balance || 0), 0)
                       .toLocaleString()}
@@ -540,6 +527,7 @@ export default function PaymentReportPage() {
                 </div>
               </div>
             </div>
+
           </div>
         ) : (
           <div className="text-center py-8 md:py-12 bg-gray-50 rounded border border-dashed print:hidden">
@@ -549,6 +537,48 @@ export default function PaymentReportPage() {
           </div>
         )}
       </div>
+
+ 
+      <style jsx>{`
+        @media print {
+          /* Force table to show when printing */
+          .print\\:block {
+            display: block !important;
+          }
+          
+          /* Hide mobile cards when printing */
+          .print\\:hidden {
+            display: none !important;
+          }
+          
+          /* Remove all height restrictions */
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+          }
+          
+          /* Allow content to flow across pages */
+          table {
+            page-break-inside: auto;
+          }
+          
+          tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+          }
+          
+          /* Repeat table header on each page */
+          thead {
+            display: table-header-group;
+          }
+          
+          /* Page setup */
+          @page {
+            size: A4 portrait;
+            margin: 1.5cm;
+          }
+        }
+      `}</style>
     </div>
   )
 }
