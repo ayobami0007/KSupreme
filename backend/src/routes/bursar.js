@@ -1,6 +1,38 @@
+// // const express = require("express");
+// // const router = express.Router();
+
+// // // Hardcoded bursar credentials
+// // const bursarUser = {
+// //   username: "Administrator",
+// //   password: "Admin524#",
+// //   name: "Default Bursar"
+// // };
+
+// // // POST /api/bursar/login
+// // router.post("/login", (req, res) => {
+// //   const { username, password } = req.body;
+
+// //   if (!username || !password) {
+// //     return res.status(400).json({ error: "Username and password required" });
+// //   }
+
+// //   if (username === bursarUser.username && password === bursarUser.password) {
+// //     return res.json({
+// //       message: "Login successful",
+// //       user: {
+// //         username: bursarUser.username,
+// //         name: bursarUser.name
+// //       }
+// //     });
+// //   }
+
+// //   res.status(401).json({ error: "Invalid credentials" });
+// // });
+
+// // module.exports = router;
 // const express = require("express");
 // const router = express.Router();
-
+	
 // // Hardcoded bursar credentials
 // const bursarUser = {
 //   username: "Administrator",
@@ -30,17 +62,17 @@
 // });
 
 // module.exports = router;
+const jwt = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
-	
+
 // Hardcoded bursar credentials
 const bursarUser = {
   username: "Administrator",
   password: "Admin524#",
-  name: "Default Bursar"
+  name: "Default Bursar",
 };
 
-// POST /api/bursar/login
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
@@ -49,12 +81,17 @@ router.post("/login", (req, res) => {
   }
 
   if (username === bursarUser.username && password === bursarUser.password) {
+    // ✅ Generate JWT token
+    const token = jwt.sign(
+      { username: bursarUser.username, name: bursarUser.name },
+      process.env.JWT_SECRET || "your_jwt_secret",
+      { expiresIn: "4h" }
+    );
+
     return res.json({
       message: "Login successful",
-      user: {
-        username: bursarUser.username,
-        name: bursarUser.name
-      }
+      token, // <-- send token to frontend
+      user: { username: bursarUser.username, name: bursarUser.name },
     });
   }
 
