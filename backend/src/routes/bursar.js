@@ -81,16 +81,8 @@ router.post("/login", (req, res) => {
   }
 
   if (username === bursarUser.username && password === bursarUser.password) {
-    // ✅ Generate JWT token
-    const token = jwt.sign(
-      { username: bursarUser.username, name: bursarUser.name },
-      process.env.JWT_SECRET || "your_jwt_secret",
-      { expiresIn: "4h" }
-    );
-
     return res.json({
       message: "Login successful",
-      token, // <-- send token to frontend
       user: { username: bursarUser.username, name: bursarUser.name },
     });
   }

@@ -3,9 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
-const authMiddleware = require("../middleware/auth");
 
-router.use(authMiddleware);
 
 // Dashboard summary endpoint
 router.get("/summary", async (req, res) => {
