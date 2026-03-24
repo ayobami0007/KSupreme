@@ -73,6 +73,21 @@ router.post("/", async (req, res) => {
   }
 });
 
+
+
+
+
+router.get("/students/:id/payment-info", async (req, res) => {
+  try {
+    const studentId = Number(req.params.id);
+    const { class_id, term_id } = req.query; // frontend will pass these
+    const info = await PaymentModel.getPaymentInfo(studentId, class_id, term_id);
+    res.json(info);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Get payments for a student
 router.get("/", async (req, res) => {
   try {
@@ -101,15 +116,5 @@ router.get("/:id", async (req, res) => {
 
 
 
-router.get("/students/:id/payment-info", async (req, res) => {
-  try {
-    const studentId = Number(req.params.id);
-    const { class_id, term_id } = req.query; // frontend will pass these
-    const info = await PaymentModel.getPaymentInfo(studentId, class_id, term_id);
-    res.json(info);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
 
 module.exports = router;

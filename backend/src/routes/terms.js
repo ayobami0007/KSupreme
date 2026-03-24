@@ -40,7 +40,7 @@ router.put("/:id/activate", async (req, res) => {
     const term = await Term.setActive(id); // model handles Postgres transaction
     res.json({ message: "Term activated", term });
   } catch (err) {
-    // console.error("Error activating term:", err);
+    console.error("Error activating term:", err);
     res.status(500).json({ error: err.message });
   }
 });

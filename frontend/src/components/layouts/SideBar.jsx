@@ -1,7 +1,6 @@
-
-import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import {useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../context/AuthContext";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   HomeIcon,
   CreditCardIcon,
@@ -13,14 +12,23 @@ import {
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { logout } = useAuth();   // get logout from context
-  const navigate = useNavigate(); // for redirect
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();            // clear token + user
-    setIsOpen(false);    // close sidebar
-    navigate("/login");  // redirect to login page
+    logout();
+    setIsOpen(false);
+    navigate("/login");
   };
+
+  // Navigation configuration
+  const navLinks = [
+    { to: "/", label: "Dashboard", icon: HomeIcon },
+    { to: "/payment", label: "Payment", icon: CreditCardIcon },
+    { to: "/students", label: "Students", icon: AcademicCapIcon },
+    { to: "/reports", label: "Reports", icon: ChartBarIcon },
+    { to: "/settings", label: "Settings", icon: Cog6ToothIcon },
+  ];
 
   return (
     <>
@@ -47,70 +55,24 @@ export default function Sidebar() {
         <div className="p-6 font-bold text-lg">School Portal</div>
 
         <nav className="mt-6 flex flex-col gap-2 px-4">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `p-2 rounded flex items-center gap-2 border-l-4 
-              ${isActive
-                ? "border-white bg-blue-800 font-semibold"
-                : "border-transparent hover:bg-blue-700"}`
-            }
-            onClick={() => setIsOpen(false)}
-          >
-            <HomeIcon className="h-5 w-5" /> Dashboard
-          </NavLink>
-
-          <NavLink
-            to="/payment"
-            className={({ isActive }) =>
-              `p-2 rounded flex items-center gap-2 border-l-4 
-              ${isActive
-                ? "border-white bg-blue-800 font-semibold"
-                : "border-transparent hover:bg-blue-700"}`
-            }
-            onClick={() => setIsOpen(false)}
-          >
-            <CreditCardIcon className="h-5 w-5" /> Payment
-          </NavLink>
-
-          <NavLink
-            to="/students"
-            className={({ isActive }) =>
-              `p-2 rounded flex items-center gap-2 border-l-4 
-              ${isActive
-                ? "border-white bg-blue-800 font-semibold"
-                : "border-transparent hover:bg-blue-700"}`
-            }
-            onClick={() => setIsOpen(false)}
-          >
-            <AcademicCapIcon className="h-5 w-5" /> Students
-          </NavLink>
-
-          <NavLink
-            to="/reports"
-            className={({ isActive }) =>
-              `p-2 rounded flex items-center gap-2 border-l-4 
-              ${isActive
-                ? "border-white bg-blue-800 font-semibold"
-                : "border-transparent hover:bg-blue-700"}`
-            }
-            onClick={() => setIsOpen(false)}
-          >
-            <ChartBarIcon className="h-5 w-5" /> Reports
-          </NavLink>
-
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `p-2 rounded flex items-center gap-2 border-l-4 
-              ${isActive
-                ? "border-white bg-blue-800 font-semibold"
-                : "border-transparent hover:bg-blue-700"}`
-            }
-            onClick={() => setIsOpen(false)}
-          >
-            <Cog6ToothIcon className="h-5 w-5" /> Settings
-          </NavLink>
+          {navLinks.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `p-2 rounded flex items-center gap-2 border-l-4 
+                ${
+                  isActive
+                    ? "border-white bg-blue-800 font-semibold"
+                    : "border-transparent hover:bg-blue-700"
+                }`
+              }
+            >
+              <Icon className="h-5 w-5" />
+              {label}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="absolute bottom-4 px-4 w-full">
@@ -118,7 +80,8 @@ export default function Sidebar() {
             className="w-full cursor-pointer p-2 rounded flex items-center gap-2 hover:bg-blue-700"
             onClick={handleLogout}
           >
-            <ArrowRightOnRectangleIcon className="h-5 w-5" /> Logout
+            <ArrowRightOnRectangleIcon className="h-5 w-5" />
+            Logout
           </button>
         </div>
       </aside>

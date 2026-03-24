@@ -45,8 +45,8 @@ app.use("/api/terms", termRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/school-fees", schoolFeeRoutes);
-app.use("/api/payments", paymentRoutes);
 app.use("/api/payments/dashboard", paymentsDashboardRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 

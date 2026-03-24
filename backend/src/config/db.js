@@ -36,4 +36,6 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false } 
 });
 
+pool.connect().catch(err => console.error("DB connection failed:", err));
+
 module.exports = pool;
