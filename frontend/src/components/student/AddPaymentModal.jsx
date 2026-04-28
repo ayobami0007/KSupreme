@@ -4,7 +4,7 @@ import Loader from "../common/Loader";
 
 const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
   const [amount, setAmount] = useState("");
-  const [mode, setMode] = useState("Cash");
+  const [mode, setMode] = useState("CASH");
   const [remark, setRemark] = useState("");
   const [error, setError] = useState("");
   const [enteredBy, setEnteredBy] = useState("");
@@ -86,10 +86,10 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
           className="border w-full mb-4 p-2 rounded"
           disabled={loading}
         >
-          <option>Cash</option>
-          <option>Transfer</option>
+          <option>CASH</option>
+          <option>TRANSFER</option>
           <option>POS</option>
-          <option>Bank</option>
+          <option>CHEQUE</option>
         </select>
 
         <label className="block mb-2 text-sm font-medium">Remark</label>
