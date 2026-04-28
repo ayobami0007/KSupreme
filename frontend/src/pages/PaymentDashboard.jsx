@@ -1,13 +1,13 @@
 
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import StudentInfoCard from "../components/student/StudentInfoCard";
 import FeeSummaryCards from "../components/student/FeeSummaryCards";
 import PaymentProgress from "../components/student/PaymentProgress";
 import PaymentHistoryTable from "../components/student/PaymentHistoryTable";
 import AddPaymentModal from "../components/student/AddPaymentModal";
 
-import {useParams} from "react-router-dom";
-import { getStudentPaymentInfo , addPayment} from "../api/payments.api";
+import { useParams } from "react-router-dom";
+import { getStudentPaymentInfo, addPayment } from "../api/payments.api";
 // import { useTerm } from "../../context/TermContext";
 import Loader from "../components/common/Loader";
 import ReceiptModal from "../components/student/ReceiptModal";
@@ -18,89 +18,94 @@ const StudentDashboard = () => {
 
 
 
-  const {id} = useParams();
+  const { id } = useParams();
   const [student, setStudent] = useState(null);
 
 
   const [payments, setPayments] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [error, setError] = useState(null)
-  
-const [showReceipt, setShowReceipt] = useState(false);
- const [selectedPayment, setSelectedPayment] = useState(null);
 
-  
-useEffect(() => {
-  const loadStudent = async () => {
-    try {
-      // console.log("Fetching payment info  with:", { id });
-      const data = await getStudentPaymentInfo(id);
-     
-      setStudent(data);
-      setPayments(data.payments || []);
-    } catch (err) {
-      console.error("Error loading student:", err);
-      setError(err.response?.data?.error || "Failed to load student data")
-    }
-  };
-
-  loadStudent();
-}, [id]);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
 
 
-if(error) return <p className="text-red-600">{error}</p>
-    if(!student) return <Loader/>
+  useEffect(() => {
+    const loadStudent = async () => {
+      try {
+        // console.log("Fetching payment info  with:", { id });
+        const data = await getStudentPaymentInfo(id);
+
+        setStudent(data);
+        setPayments(data.payments || []);
+      } catch (err) {
+        console.error("Error loading student:", err);
+        setError(err.response?.data?.error || "Failed to load student data")
+      }
+    };
+
+    loadStudent();
+  }, [id]);
+
+
+  if (error) return <p className="text-red-600">{error}</p>
+  if (!student) return <Loader />
 
   // Compute totalPaid 
-  const totalPaid = student.total_paid 
+  const totalPaid = student.total_paid
   const balance = student.balance;
 
-  const handleAddPayment = async(newPayment) =>{
-    try{
+  const handleAddPayment = async (newPayment) => {
+    try {
       const payload = {
         ...newPayment,
-        student_id : student.id,
-        class_id : student.class_id,
-        term_id : student.term_id
+        student_id: student.id,
+        class_id: student.class_id,
+        term_id: student.term_id
 
-     }
-     const res = await addPayment(payload);
+      }
+      const res = await addPayment(payload);
 
-   setPayments(prev => [...prev, res.payment])
-     setStudent({
-      ...student,
-      total_paid : res.total_paid,
-      balance : res.balance
+      setPayments(prev => [...prev, res.payment])
+      setStudent({
+        ...student,
+        total_paid: res.total_paid,
+        balance: res.balance,
+        status: res.balance === 0 ?
+          "Fully Paid"
+          : res.total_paid > 0
+            ? "Partially Paid"
+            : "Not Paid"
 
-      
-     });
-     setShowAddModal(false)
-  
 
-    } catch(error){
+      });
+      setShowAddModal(false)
+
+
+    } catch (error) {
       console.error("Error saving payments:", error)
-     setError(error.response?.data?.error || "Failed to save payment. Please try again.")
+      setError(error.response?.data?.error || "Failed to save payment. Please try again.")
     }
   }
 
-  
-const handlePrintReceipt = (payment) =>{
-  setSelectedPayment(payment)
-  setShowReceipt(true)
-}
+
+  const handlePrintReceipt = (payment) => {
+    setSelectedPayment(payment)
+    setShowReceipt(true)
+  }
 
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen ">
-       <BackArrow/>
+      <BackArrow />
       <h1 className="text-2xl font-bold mb-6">Student Payment Dashboard</h1>
 
-    <StudentInfoCard student={{ ...student, total_paid: totalPaid, balance }} />
+      <StudentInfoCard student={{ ...student, total_paid: totalPaid, balance }} />
       <FeeSummaryCards student={{ ...student, total_paid: totalPaid, balance }} />
       <PaymentProgress totalPaid={totalPaid} totalFee={student.total_fee} />
       <PaymentHistoryTable payments={payments} onAddPayment={() => setShowAddModal(true)}
-      onPrintReceipt={handlePrintReceipt} />
- 
+        onPrintReceipt={handlePrintReceipt} />
+
 
 
       <AddPaymentModal
@@ -110,10 +115,10 @@ const handlePrintReceipt = (payment) =>{
         balance={balance}
       />
       <ReceiptModal
-      isOpen={showReceipt}
-      onClose={() => setShowReceipt(false)}
-      payment={selectedPayment}
-      student={student}
+        isOpen={showReceipt}
+        onClose={() => setShowReceipt(false)}
+        payment={selectedPayment}
+        student={student}
       />
     </div>
   );
