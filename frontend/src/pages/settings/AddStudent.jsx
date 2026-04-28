@@ -1,13 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getStudents, addStudent, updateStudent } from "../../api/students.api";
 import { getClasses } from "../../api/classes.api";
-
 import Loader from "../../components/common/Loader";
-
 import { PencilIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
-
-
-// Reusable components
 import Input from "../../components/common/Input";
 import Dropdown from "../../components/common/DropDown";
 import Button from "../../components/common/Button";
@@ -16,64 +11,81 @@ import BackArrow from "../../components/common/BackArrow";
 import IconButton from "../../components/common/IconButton";
 import Pagination from "../../components/common/Pagination";
 
-
 export default function StudentsPage() {
-  const [students, setStudents] = useState([]);
-  const [classes, setClasses] = useState([]);
+  const [students,        setStudents]        = useState([]);
+  const [classes,         setClasses]         = useState([]);
 
   // Form states
-  const [name, setName] = useState("");
-  const [selectedClass, setSelectedClass] = useState("");
-  const [status, setStatus] = useState("Active");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [name,            setName]            = useState("");
+  const [selectedClass,   setSelectedClass]   = useState("");
+  const [status,          setStatus]          = useState("Active");
+  const [error,           setError]           = useState("");
+  const [successMessage,  setSuccessMessage]  = useState("");
+  const [loading,         setLoading]         = useState(false);
 
   // Editing state
   const [editingStudentId, setEditingStudentId] = useState(null);
-  const [editingName, setEditingName] = useState("");
-
-
-  const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [editingName,      setEditingName]      = useState("");
+  const [actionLoadingId,  setActionLoadingId]  = useState(null);
 
   // Page loading
   const [pageLoading, setPageLoading] = useState(false);
 
   // Filter state
-  const [filterClass, setFilterClass] = useState("");
-  const [filterStatus, setFilterStatus] = useState("Active")
+  const [filterClass,  setFilterClass]  = useState("");
+  const [filterStatus, setFilterStatus] = useState("Active");
 
-  // pagination
-const [currentPage, setCurrentpage] = useState(1);
-const [pageSize] = useState(20)
-const [totalCount, setTotalCount] = useState(0)
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize]                    = useState(20);
+  const [totalCount,  setTotalCount]  = useState(0);
 
+  // ---------------------------------------------------------------------------
+  // FIX: Load classes ONCE — they never change between filter/page updates
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    loadData();
-  }, [filterStatus, filterClass, currentPage]);
+    const loadClasses = async () => {
+      try {
+        const classData = await getClasses();
+        setClasses(classData);
+      } catch (err) {
+        console.error("Failed to load classes:", err);
+      }
+    };
+    loadClasses();
+  }, []);
 
-  const loadData = async () => {
+  // ---------------------------------------------------------------------------
+  // FIX: Load students separately — only re-runs when filters or page change
+  // ---------------------------------------------------------------------------
+  const loadStudents = useCallback(async () => {
     try {
       setPageLoading(true);
-      const offset = (currentPage - 1) * pageSize
-   
-      const {rows, totalCount} = await getStudents({ 
-        status: filterStatus === "" ? undefined : filterStatus,
-         class_id: filterClass === "" ? undefined : filterClass, 
-         limit: pageSize, 
-         offset,
-      });
-      setStudents(rows);
-      setTotalCount(totalCount)
+      const offset = (currentPage - 1) * pageSize;
 
-      const classData = await getClasses();
-      setClasses(classData);
+      const { rows, totalCount } = await getStudents({
+        status:   filterStatus === "" ? undefined : filterStatus,
+        class_id: filterClass  === "" ? undefined : filterClass,
+        limit:    pageSize,
+        offset,
+      });
+
+      setStudents(rows);
+      setTotalCount(totalCount);
     } catch (err) {
-      console.error("Failed to load data:", err);
+      console.error("Failed to load students:", err);
     } finally {
       setPageLoading(false);
     }
-  };
+  }, [filterStatus, filterClass, currentPage, pageSize]);
 
+  useEffect(() => {
+    loadStudents();
+  }, [loadStudents]);
+
+  // ---------------------------------------------------------------------------
+  // Editing handlers
+  // ---------------------------------------------------------------------------
   const startEditing = (student) => {
     setEditingStudentId(student.id);
     setEditingName(student.name);
@@ -85,7 +97,7 @@ const [totalCount, setTotalCount] = useState(0)
       await updateStudent(id, { name: editingName });
       setEditingStudentId(null);
       setEditingName("");
-      await loadData();
+      await loadStudents();
     } catch (err) {
       console.error("Failed to update student:", err);
       setError(err.response?.data?.error || err.message);
@@ -98,7 +110,7 @@ const [totalCount, setTotalCount] = useState(0)
     try {
       setActionLoadingId(id);
       await updateStudent(id, { status: "Inactive" });
-      await loadData();
+      await loadStudents();
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -110,7 +122,7 @@ const [totalCount, setTotalCount] = useState(0)
     try {
       setActionLoadingId(id);
       await updateStudent(id, { status: "Active" });
-      await loadData();
+      await loadStudents();
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -118,8 +130,14 @@ const [totalCount, setTotalCount] = useState(0)
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Add student
+  // ---------------------------------------------------------------------------
   const handleSubmit = async () => {
-    if (!name) return setError("Name is required");
+    setError("");
+    setSuccessMessage("");
+
+    if (!name)          return setError("Name is required");
     if (!selectedClass) return setError("Class is required");
 
     setLoading(true);
@@ -129,12 +147,13 @@ const [totalCount, setTotalCount] = useState(0)
         class_id: Number(selectedClass),
         status,
       });
-      await loadData();
+      await loadStudents();
       setName("");
       setSelectedClass("");
       setStatus("Active");
-      setError("");
-      alert("Student added successfully");
+      // FIX: replaced alert() with inline success message
+      setSuccessMessage("Student added successfully.");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -142,21 +161,9 @@ const [totalCount, setTotalCount] = useState(0)
     }
   };
 
-  // Apply filter
-  // const filteredStudents = students.filter((s) => {
-  //   return filterClass ? s.class_name === filterClass : true;
-  // });
-
-  // const sortedStudents = [...filteredStudents].sort(
-  //   (a, b) => new Date(a.created_at) - new Date(b.created_at)
-  // );
-
-  // const recentStudents = sortedStudents.slice(-20);
-
   return (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
       <BackArrow />
-
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Student Management</h1>
 
       {/* Add Student Form */}
@@ -189,13 +196,15 @@ const [totalCount, setTotalCount] = useState(0)
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             options={[
-              { value: "Active", label: "Active" },
+              { value: "Active",   label: "Active" },
               { value: "Inactive", label: "Inactive" },
             ]}
             required
           />
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {/* FIX: inline messages instead of alert() */}
+          {error          && <p className="text-red-500 text-sm">{error}</p>}
+          {successMessage && <p className="text-green-600 text-sm">{successMessage}</p>}
 
           <Button onClick={handleSubmit} loading={loading}>
             Add Student
@@ -203,14 +212,15 @@ const [totalCount, setTotalCount] = useState(0)
         </div>
       </div>
 
-      {/* Students Table with Class Filter */}
+      {/* Students Table */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6 overflow-x-auto">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Students List</h2>
+
         <div className="flex gap-2">
           <Dropdown
             label="Filter by Class"
             value={filterClass}
-            onChange={(e) => setFilterClass(e.target.value)}
+            onChange={(e) => { setFilterClass(e.target.value); setCurrentPage(1); }}
             options={[
               { value: "", label: "All Classes" },
               ...classes.map((c) => ({
@@ -221,17 +231,19 @@ const [totalCount, setTotalCount] = useState(0)
             className="w-48 mb-4"
           />
 
-
           <Dropdown
-            label="filter by status"
+            label="Filter by Status"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
             options={[
-              { value: "", label: "All" },
-              { value: "Active", label: "Active" },
+              { value: "",         label: "All" },
+              { value: "Active",   label: "Active" },
               { value: "Inactive", label: "Inactive" },
-            ]} className="w-48 mb-4" />
+            ]}
+            className="w-48 mb-4"
+          />
         </div>
+
         {pageLoading ? (
           <Loader />
         ) : (
@@ -287,20 +299,19 @@ const [totalCount, setTotalCount] = useState(0)
                     disabled={actionLoadingId === s.id}
                     title={s.status === "Active" ? "Deactivate" : "Activate"}
                   />
-
                 </div>
               ),
             ])}
           />
         )}
       </div>
-      <Pagination
-  currentPage={currentPage}
-  totalCount={totalCount}
-  pageSize={pageSize}
-  onPageChange={(page) => setCurrentpage(page)}
-/>
 
+      <Pagination
+        currentPage={currentPage}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 }

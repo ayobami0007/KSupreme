@@ -5,13 +5,13 @@ import { useState, useEffect } from "react";
 import PaymentFilters from "../components/student/PaymentFilters";
 import StudentsTable from "../components/student/StudentsTable";
 import { useTerm } from "../context/TermContext";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import { getClasses } from "../api/classes.api";
 import { getStudentsWithStatus } from "../api/students.api";
 import Loader from "../components/common/Loader";
 
 const StudentList = () => {
-  const { id } = useParams();
+  // const { id } = useParams();
   const { activeTerm, loading } = useTerm();
 
   const [classes, setClasses] = useState([]);
@@ -52,9 +52,9 @@ const StudentList = () => {
     loadClasses();
   }, []);
 
-  useEffect(() => {
-    console.log("Selected class changed:", selectedClass);
-  }, [selectedClass]);
+  // useEffect(() => {
+  //   console.log("Selected class changed:", selectedClass);
+  // }, [selectedClass]);
 
 
   // Load students whenever class or search changes

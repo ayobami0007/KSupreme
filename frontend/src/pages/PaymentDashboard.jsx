@@ -35,7 +35,7 @@ useEffect(() => {
     try {
       // console.log("Fetching payment info  with:", { id });
       const data = await getStudentPaymentInfo(id);
-      console.log(data)
+     
       setStudent(data);
       setPayments(data.payments || []);
     } catch (err) {
@@ -66,7 +66,7 @@ if(error) return <p className="text-red-600">{error}</p>
      }
      const res = await addPayment(payload);
 
-     setPayments([...payments, res.payment])
+   setPayments(prev => [...prev, res.payment])
      setStudent({
       ...student,
       total_paid : res.total_paid,
@@ -75,11 +75,11 @@ if(error) return <p className="text-red-600">{error}</p>
       
      });
      setShowAddModal(false)
-     console.log("Sending payment payload:", payload);
+  
 
     } catch(error){
       console.error("Error saving payments:", error)
-      alert(error.response?.data?.error || "Failed to save payment. Please Try again.")
+     setError(error.response?.data?.error || "Failed to save payment. Please try again.")
     }
   }
 
