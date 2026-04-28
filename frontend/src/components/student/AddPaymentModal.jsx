@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import Loader from "../common/Loader"; 
+import Loader from "../common/Loader";
 
 const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
   const [amount, setAmount] = useState("");
@@ -8,11 +8,11 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
   const [remark, setRemark] = useState("");
   const [error, setError] = useState("");
   const [enteredBy, setEnteredBy] = useState("");
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   const resetFields = () => {
     setAmount("");
-    setMode("Cash");
+    setMode("CASH");
     setRemark("");
     setEnteredBy("");
     setError("");
@@ -49,7 +49,7 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
       resetFields();
       onClose();
     } catch (err) {
-     setError("Failed to save payment. Please try again.");
+      setError("Failed to save payment. Please try again.");
     } finally {
       setLoading(false); // stop loader
     }
@@ -86,10 +86,10 @@ const AddPaymentModal = ({ show, onClose, onSave, balance }) => {
           className="border w-full mb-4 p-2 rounded"
           disabled={loading}
         >
-          <option>CASH</option>
-          <option>TRANSFER</option>
-          <option>POS</option>
-          <option>CHEQUE</option>
+          <option value="CASH">Cash</option>
+          <option value="TRANSFER">Transfer</option>
+          <option value="POS">POS</option>
+          <option value="CHEQUE">Cheque</option>
         </select>
 
         <label className="block mb-2 text-sm font-medium">Remark</label>
