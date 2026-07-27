@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { NavLink, useNavigate } from "react-router-dom";
+import Logo from "../../assets/Logo.png"
 import {
   HomeIcon,
   CreditCardIcon,
@@ -52,7 +53,10 @@ export default function Sidebar() {
         text-white transform transition-transform duration-300 
         ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 overflow-hidden print:hidden`}
       >
-        <div className="p-6 font-bold text-lg">School Portal</div>
+       <div className="flex flex-col items-center gap-2 p-6">
+  <img src={Logo} alt="company logo" className="w-16 h-16 object-contain" />
+  <h2 className="font-bold text-lg text-center">Supreme Schools Portal</h2>
+</div>
 
         <nav className="mt-6 flex flex-col gap-2 px-4">
           {navLinks.map(({ to, label, icon: Icon }) => (
