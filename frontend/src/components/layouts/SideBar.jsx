@@ -54,7 +54,7 @@ export default function Sidebar() {
         ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 overflow-hidden print:hidden`}
       >
        <div className="flex flex-col items-center gap-2 p-6">
-  <img src={Logo} alt="company logo" className="w-16 h-16 object-contain" />
+  <img src={Logo} alt="company logo" className="w-24 h-24 object-contain" />
   <h2 className="font-bold text-lg text-center">Supreme Schools Portal</h2>
 </div>
 
