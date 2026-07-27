@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { NavLink, useNavigate } from "react-router-dom";
-import Logo from "../../assets/Logo.png"
+import Logo from "../../assets/logo.png"
 import {
   HomeIcon,
   CreditCardIcon,
