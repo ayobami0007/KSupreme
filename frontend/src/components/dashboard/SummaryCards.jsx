@@ -36,14 +36,14 @@ const cardStyles = {
     text: "text-orange-600",
   },
   "Total Amount Collected": {
-    bg: "bg-purple-50",
-    border: "border-l-4 border-purple-500",
-    text: "text-purple-600",
+    bg: "bg-green-50",
+    border: "border-l-4 border-green-500",
+    text: "text-green-600",
   },
   "Total fee for term": {
-    bg: "bg-gray-50",
-    border: "border-l-4 border-gray-400",
-    text: "text-gray-700",
+    bg: "bg-blue-50",
+    border: "border-l-4 border-blue-500",
+    text: "text-blue-600",
   },
 };
 
